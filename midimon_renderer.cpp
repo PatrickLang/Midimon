@@ -3,6 +3,8 @@
 #include "midimon_display.h"
 #include <midi_serialization.h>
 
+#include <avr/pgmspace.h>
+
 uint8_t MidimonRenderer::printSymbol(Symbol sym)
 {
 	const uint8_t *p = SPECIAL_SYMBOLS[sym];
@@ -29,7 +31,17 @@ uint8_t MidimonRenderer::printString(const char *str)
 	return x;
 }
 
-static const char HEX[] =
+uint8_t MidimonRenderer::printString_P(const char *str)
+{
+	uint8_t x = 0;
+	char c;
+	while ((c = pgm_read_byte(str++)))
+		x += printChar(c);
+
+	return x;
+}
+
+static const char HEX[16] =
 {
 	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 };

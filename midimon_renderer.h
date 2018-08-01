@@ -16,6 +16,7 @@ public:
 	uint8_t printSymbol(Symbol sym);
 	uint8_t printChar(char c);
 	uint8_t printString(const char *str);
+	uint8_t printString_P(const char *str); // PROGMEM version.
 	uint8_t printHex(uint8_t val);
 	uint8_t printMidiEventHex(const midi_event_t &event);
 	uint8_t printDec(uint8_t val, uint8_t padding = 0);
