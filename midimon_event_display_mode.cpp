@@ -56,24 +56,31 @@ void EventDisplayMode::printEvent(MidimonRenderer &renderer, const midi_event_t 
 	case 0x05:
 		if (midi_is_single_byte_system_common(event.m_data[0]))
 		{
-			//print_system_common(event, 1);
+			printSystemCommon(renderer, event, 1);
 			break;
 		}
 		// Fallthrough intentional.
 	case 0x04:
 	case 0x06:
 	case 0x07:
-		//print_sysex(event.m_data, (eventId + 1) % 3 + 1);
 		printSysex(renderer, event.m_data, (eventId + 1) % 3 + 1);
 		break;
-	case 0x02: // 2 byte sys common
-	case 0x03: // 3 byte sys common
-		//print_system_common(event, eventId);
+	case 0x02: // 2 byte system common.
+	case 0x03: // 3 byte system common.
+		printSystemCommon(renderer, event, eventId);
 		break;
-	case 0x0a: // poly keypress
-	case 0x0d: // channel pressure
-	case 0x0e: // pitch bend
-	case 0x0f: // single byte
+	case 0x0f: // Single byte.
+		printSystemRealtime(renderer, event);
+		break;
+	case 0x0a: // Aftertouch.
+		printPolyAftertouch(renderer, event.m_data[0] & 0xf, event.m_data[1], event.m_data[2]);
+		break;
+	case 0x0d: // Channel pressure.
+		printAftertouch(renderer, event.m_data[0] & 0xf, event.m_data[1]);
+		break;
+	case 0x0e: // Pitch bend.
+		printPitchBend(renderer, event.m_data[0] & 0xf, (((uint16_t)event.m_data[2]&0x7f) << 7) | (event.m_data[1]&0x7f));
+		break;
 	default:
 		m_x += renderer.printMidiEventHex(event);
 		break;
@@ -90,6 +97,32 @@ void EventDisplayMode::printNote(MidimonRenderer &renderer, uint8_t ch, uint8_t 
 	m_x += renderer.printNote(note);
 	m_x += renderer.printChar(' ');
 	m_x += renderer.printDec(vel, 3);
+}
+
+void EventDisplayMode::printPolyAftertouch(MidimonRenderer & renderer, uint8_t ch, uint8_t note, uint8_t pressure)
+{
+	m_x += renderer.printString("Aft.");
+	m_x += renderer.printDec(ch + 1, 2);
+	m_x += renderer.printChar(' ');
+	m_x += renderer.printNote(note);
+	m_x += renderer.printChar(' ');
+	m_x += renderer.printDec(pressure, 3);
+}
+
+void EventDisplayMode::printAftertouch(MidimonRenderer & renderer, uint8_t ch, uint8_t pressure)
+{
+	m_x += renderer.printString("Ch.Aft.");
+	m_x += renderer.printDec(ch + 1, 2);
+	m_x += renderer.printChar(' ');
+	m_x += renderer.printDec(pressure, 3);
+}
+
+void EventDisplayMode::printPitchBend(MidimonRenderer & renderer, uint8_t ch, uint16_t value)
+{
+	m_x += renderer.printString("P.Bnd. ");
+	m_x += renderer.printDec(ch + 1, 2);
+	m_x += renderer.printChar(' ');
+	m_x += renderer.printDec16((int16_t)(value - 0x2000));
 }
 
 void EventDisplayMode::printCC(MidimonRenderer & renderer, uint8_t ch, uint8_t cc, uint8_t val)
@@ -120,6 +153,82 @@ void EventDisplayMode::printSysex(MidimonRenderer & renderer, const uint8_t * da
 		m_x += renderer.printHex(data[i]);
 		m_x += renderer.printChar(' ');
 	}
+}
+
+void EventDisplayMode::printSystemCommon(MidimonRenderer &renderer, const midi_event_t &event, uint8_t len)
+{
+	switch (len)
+	{
+	case 1:
+		if (event.m_data[0] == 0xf6)
+		{
+			m_x += renderer.printString("Tune req.");
+			return;
+		}
+		break;
+	case 2:
+		if (event.m_data[0] == 0xf1)
+		{
+			m_x += renderer.printString("MTC");
+			m_x += renderer.printDec((event.m_data[1] >> 4) & 7, 2);
+			m_x += renderer.printDec((event.m_data[1] & 0xf), 3);
+			return;
+		}
+		else if (event.m_data[0] == 0xf3)
+		{
+			m_x += renderer.printString("SongSel.");
+			m_x += renderer.printDec(event.m_data[1] & 0x7f, 4);
+			return;
+		}
+		break;
+	case 3:
+		if (event.m_data[0] == 0xf2)
+		{
+			m_x += renderer.printString("SPP");
+			uint16_t position = (((uint16_t)event.m_data[2]&0x7f) << 7) | (event.m_data[1]&0x7f);
+			uint16_t bar = position / 16 + 1;
+			uint16_t measure = ((position % 16) / 4) + 1;
+			m_x += renderer.printDec16(bar, 3);
+			m_x += renderer.printChar(':');
+			m_x += renderer.printChar(measure + '0');
+			return;
+		}
+	default:
+		break;
+	}
+
+	m_x += renderer.printMidiEventHex(event);
+}
+
+void EventDisplayMode::printSystemRealtime(MidimonRenderer & renderer, const midi_event_t &event)
+{
+	uint8_t byte = event.m_data[0];
+
+	switch (byte)
+	{
+	case 0xf8: // Clock.
+		m_x += renderer.printString("Clock");
+		return;
+	case 0xfa: // Start.
+		m_x += renderer.printString("Start");
+		return;
+	case 0xfb: // Continue.
+		m_x += renderer.printString("Continue");
+		return;
+	case 0xfc: // Stop.
+		m_x += renderer.printString("Stop");
+		return;
+	case 0xfe: // Active sensing.
+		m_x += renderer.printString("Active Sense");
+		return;
+	case 0xff: // Reset.
+		m_x += renderer.printString("Reset");
+		return;
+	default:
+		break;
+	}
+
+	m_x += renderer.printMidiEventHex(event);
 }
 
 void EventDisplayMode::fillRemainingPixels(MidimonRenderer &renderer)

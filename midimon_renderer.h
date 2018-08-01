@@ -15,9 +15,12 @@ public:
 
 	uint8_t printSymbol(Symbol sym);
 	uint8_t printChar(char c);
+	uint8_t printString(const char *str);
 	uint8_t printHex(uint8_t val);
 	uint8_t printMidiEventHex(const midi_event_t &event);
 	uint8_t printDec(uint8_t val, uint8_t padding = 0);
+	uint8_t printDec16(uint16_t val, uint8_t padding = 0);
+	uint8_t printDec16(int16_t val);
 	uint8_t printNote(uint8_t note);
 
 	virtual void begin() override;

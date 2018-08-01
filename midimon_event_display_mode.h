@@ -19,10 +19,15 @@ public:
 private:
 	void newLine();
 	void printEvent(MidimonRenderer &renderer, const midi_event_t &event);
-	void printNote(MidimonRenderer& renderer, uint8_t ch, uint8_t note, uint8_t vel, bool on);
-	void printCC(MidimonRenderer& renderer, uint8_t ch, uint8_t cc, uint8_t val);
-	void printProgChange(MidimonRenderer& renderer, uint8_t ch, uint8_t prog);
-	void printSysex(MidimonRenderer& renderer, const uint8_t *data, uint8_t n);
+	void printNote(MidimonRenderer &renderer, uint8_t ch, uint8_t note, uint8_t vel, bool on);
+	void printPolyAftertouch(MidimonRenderer &renderer, uint8_t ch, uint8_t note, uint8_t pressure);
+	void printAftertouch(MidimonRenderer &renderer, uint8_t ch, uint8_t pressure);
+	void printPitchBend(MidimonRenderer &renderer, uint8_t ch, uint16_t value);
+	void printCC(MidimonRenderer &renderer, uint8_t ch, uint8_t cc, uint8_t val);
+	void printProgChange(MidimonRenderer &renderer, uint8_t ch, uint8_t prog);
+	void printSysex(MidimonRenderer &renderer, const uint8_t *data, uint8_t n);
+	void printSystemCommon(MidimonRenderer &renderer, const midi_event_t &event, uint8_t len);
+	void printSystemRealtime(MidimonRenderer &renderer, const midi_event_t &event);
 
 	void fillRemainingPixels(MidimonRenderer &renderer);
 

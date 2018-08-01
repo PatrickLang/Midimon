@@ -19,6 +19,16 @@ uint8_t MidimonRenderer::printChar(char c)
 	return FONT_WIDTH + 1;
 }
 
+uint8_t MidimonRenderer::printString(const char *str)
+{
+	uint8_t x = 0;
+	char c;
+	while ((c = *str++))
+		x += printChar(c);
+
+	return x;
+}
+
 static const char HEX[] =
 {
 	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
@@ -38,6 +48,7 @@ uint8_t MidimonRenderer::printMidiEventHex(const midi_event_t &event)
 	if (len == 0)
 	{
 		printChar('-');
+		return FONT_WIDTH+1;
 	}
 	else
 	{
@@ -46,9 +57,8 @@ uint8_t MidimonRenderer::printMidiEventHex(const midi_event_t &event)
 			printHex(event.m_data[i]);
 			printChar(' ');
 		}
+		return 3 * len * (FONT_WIDTH + 1);
 	}
-
-	return 3 * 3 * (FONT_WIDTH+1);
 }
 
 uint8_t MidimonRenderer::printDec(uint8_t val, uint8_t padding)
@@ -87,6 +97,72 @@ uint8_t MidimonRenderer::printDec(uint8_t val, uint8_t padding)
 	}
 
 	return x;
+}
+
+uint8_t MidimonRenderer::printDec16(uint16_t val, uint8_t padding)
+{
+	uint8_t n = 0;
+	char str[5];
+	if (val < 10)
+	{
+		str[0] = val + '0';
+		n = 1;
+	}
+	else if (val < 100)
+	{
+		str[0] = (val / 10) % 10 + '0';
+		str[1] = val % 10 + '0';
+		n = 2;
+	}
+	else if (val < 1000)
+	{
+		str[0] = val / 100 + '0';
+		str[1] = (val / 10) % 10 + '0';
+		str[2] = val % 10 + '0';
+		n = 3;
+	}
+	else if (val < 10000)
+	{
+		str[0] = (val / 1000) % 10 + '0';
+		str[1] = (val / 100) % 10 + '0';
+		str[2] = (val / 10) % 10 + '0';
+		str[3] = val % 10 + '0';
+		n = 4;
+	}
+	else
+	{
+		str[0] = val / 10000 + '0';
+		str[1] = (val / 1000) % 10 + '0';
+		str[2] = (val / 100) % 10 + '0';
+		str[3] = (val / 10) % 10 + '0';
+		str[4] = val % 10 + '0';
+		n = 5;
+	}
+
+	uint8_t x = 0;
+
+	for (int8_t i=0; i<(int8_t)(padding - n); ++i)
+	{
+		x += printChar(' ');
+	}
+
+	for (uint8_t i=0; i<n; ++i)
+	{
+		x += printChar(str[i]);
+	}
+
+	return x;
+}
+
+uint8_t MidimonRenderer::printDec16(int16_t val)
+{
+	if (val < 0)
+	{
+		printChar('-');
+		return FONT_WIDTH + 1 + printDec16((uint16_t)-val, 0);
+	}
+
+	return printDec16((uint16_t)val, 0);
 }
 
 uint8_t MidimonRenderer::printNote(uint8_t note)
