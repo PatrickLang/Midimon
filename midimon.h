@@ -2,6 +2,25 @@
 #define MIDIMON_H
 
 #include <Arduino.h>
+#include <midi_serialization.h>
+
+#include <stdint.h>
+
+#include "midimon_renderer.h"
+#include "midimon_utils.h"
+
+#define MODES_BEGIN(name) \
+	static IMidimonMode *name[] = {
+
+#define MODES_ADD(class) \
+	static_alloc<class>(),
+
+#define MODES_END() \
+	};
+
+class IMidimonDisplay;
+class IMidimonMode;
+struct midi_event_t;
 
 enum MidimonPort
 {
@@ -10,37 +29,65 @@ enum MidimonPort
 	PORT_USB,
 };
 
-enum MidimonMode
+enum MidimonButton
 {
-	MODE_PASSTHROUGH,
+	BUTTON_ENTER,
+	BUTTON_UP,
+	BUTTON_DOWN,
+};
+
+enum MidimonInterfaceMode
+{
+	MODE_DIN5_ONLY,
+	MODE_USB_ONLY,
 	MODE_USB_INTERFACE,
 };
 
-void midimon_incoming(MidimonPort src, const u8 msg[3], bool hadStatusByte);
-void midimon_outgoing(MidimonPort dst, const u8 msg[3], bool hadStatusByte);
+typedef bool (*midimon_process_fn)(MidimonPort src, MidimonPort dst, uint8_t msg[3], uint8_t n);
 
-bool midimon_process(MidimonPort src, MidimonPort dst, u8 msg[3]);
-
-//struct ChannelNoteState
-//{
-//	u8 m_state[16];
-//};
-
-class Midimon_
+class Midimon
 {
 public:
-	Midimon_();
+	template <const uint8_t count>
+	Midimon(IMidimonDisplay &display, IMidimonMode *(&modes)[count])
+		:m_display(display)
+		,m_serializerDIN5(0)
+		,m_serializerUSB(0)
+	{
+		init(modes, count);
+	}
+
+	void setProcessFunction(midimon_process_fn fn);
 
 	void begin();
-
-	void setMode(MidimonMode mode);
-	MidimonMode getMode() const;
-
-	//void getChannelNoteStates(ChannelNoteState &result) const;
-
 	void poll();
-};
 
-extern Midimon_ Midimon;
+	void setInterfaceMode(MidimonInterfaceMode mode);
+	MidimonInterfaceMode getInterfaceMode() const;
+
+	inline IMidimonDisplay &getDisplay() const { return m_display; }
+	inline MidimonRenderer &getRenderer() { m_renderer; }
+
+private:
+	void init(IMidimonMode **modes, uint8_t n);
+	IMidimonMode *getActiveMode() const;
+
+	void process(MidimonPort src, MidimonPort dst, Stream &input, Stream &output, MidiToUsb &serializer);
+	void handleIncoming(MidimonPort src, const midi_event_t &event);
+	void handleOutgoing(MidimonPort dst, const midi_event_t &event);
+
+	IMidimonDisplay &m_display;
+	MidimonRenderer m_renderer;
+	midimon_process_fn m_processFn;
+
+	IMidimonMode **m_modes;
+	uint8_t m_modeCount;
+	uint8_t m_activeModeId;
+	IMidimonMode *m_modalMode;
+
+	MidimonInterfaceMode m_mode;
+	MidiToUsb m_serializerDIN5;
+	MidiToUsb m_serializerUSB;
+};
 
 #endif // MIDIMON_H

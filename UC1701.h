@@ -14,4 +14,6 @@ void uc1701_set_position(uint8_t x, uint8_t y); // Y is in count of 8 pixels. Sc
 void uc1701_draw_bitmap(const void *data, uint8_t n); // Draw n x 8 pixels.
 void uc1701_draw_progmem_bitmap(const PROGMEM void *data, uint8_t n); // Draw n x 8 pixels from PROGMEM memory.
 
+void uc1701_test();
+
 #endif // UC1701_H

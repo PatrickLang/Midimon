@@ -187,7 +187,7 @@ void uc1701_reset()
 		uc1701_set_all_pixels_on(true);                 // 0xa5
 		uc1701_set_advanced_settings(true, true, true); // 0xfa 0x83
 
-		uc1701_set_all_pixels_on(false);                // 0xa5
+		uc1701_set_all_pixels_on(true);                // 0xa5
 		uc1701_set_display_enable(true);                // 0xaf
 
 		uc1701_mode(DATA);
@@ -268,4 +268,11 @@ void uc1701_draw_progmem_bitmap(const PROGMEM void *data, uint8_t n)
 		uint8_t byte = pgm_read_byte(p++);
 		uc1701_send(byte);
 	}
+}
+
+void uc1701_test()
+{
+	uc1701_mode(COMMAND);
+	Transaction t;
+	uc1701_set_all_pixels_on(true);
 }

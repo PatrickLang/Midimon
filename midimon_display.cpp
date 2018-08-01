@@ -1,3 +1,4 @@
+#if 0
 #include <Arduino.h>
 
 #include <string.h>
@@ -238,11 +239,11 @@ void midimon_outgoing(MidimonPort dst, midi_event_t event, bool hadStatusByte)
 	MidimonDisplay.printOutput(dst, event);
 }
 
-MidimonDisplay_::MidimonDisplay_()
+MidimonDisplay::MidimonDisplay()
 {
 }
 
-void MidimonDisplay_::begin()
+void MidimonDisplay::begin()
 {
 	uc1701_init(SS, LCD_CD, LCD_RESET);
 	for (int i=0; i<8; ++i)
@@ -264,21 +265,21 @@ void MidimonDisplay_::begin()
 	print_char('t');
 }
 
-void MidimonDisplay_::printInput(MidimonPort port, midi_event_t event)
+void MidimonDisplay::printInput(MidimonPort port, midi_event_t event)
 {
 	g_x = 0;
 	uc1701_set_position(0, 0);
 	print_event(event);
 }
 
-void MidimonDisplay_::printOutput(MidimonPort port, midi_event_t event)
+void MidimonDisplay::printOutput(MidimonPort port, midi_event_t event)
 {
 	g_x = 65;
 	uc1701_set_position(65, 0);
 	print_event(event);
 }
 
-void MidimonDisplay_::newLine()
+void MidimonDisplay::newLine()
 {
 	uint8_t vline = 0xff;
 	uc1701_add_scroll(-8);
@@ -286,6 +287,7 @@ void MidimonDisplay_::newLine()
 	uc1701_draw_bitmap(&vline, sizeof(vline));
 }
 
-void MidimonDisplay_::redraw()
+void MidimonDisplay::redraw()
 {
 }
+#endif

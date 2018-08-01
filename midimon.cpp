@@ -1,50 +1,55 @@
 #include <usbmidi.h>
 #include <midi_serialization.h>
 
-#include <Arduino.h>
-
-#include <stdint.h>
-
 #include "midimon.h"
+#include "midimon_display.h"
+#include "midimon_mode.h"
 
-static MidimonMode g_mode = MODE_PASSTHROUGH;
-static MidiToUsb g_serializerDIN5(0);
-static MidiToUsb g_serializerUSB(0);
+#include "UC1701.h"
 
-__attribute__((weak)) void midimon_incoming(MidimonPort src, midi_event_t event, bool hadStatusByte) {}
-__attribute__((weak)) void midimon_outgoing(MidimonPort dst, midi_event_t event, bool hadStatusByte) {}
-
-__attribute__((weak)) bool midimon_process(MidimonPort src, MidimonPort dst, u8 msg[3])
+void Midimon::init(IMidimonMode **modes, uint8_t n)
 {
-	return true;
+	uc1701_test();
+	m_modes = modes;
+	m_modeCount = n;
+	m_activeModeId = 0;
+	m_processFn = NULL;
+	m_mode = MODE_USB_ONLY;
+	m_modalMode = NULL;
+	m_renderer.setDisplay(&m_display);
 }
 
-Midimon_ Midimon;
-
-Midimon_::Midimon_()
+IMidimonMode * Midimon::getActiveMode() const
 {
+	uc1701_test();
+	return !m_modalMode ? m_modes[m_activeModeId] : m_modalMode;
 }
 
-void Midimon_::begin()
+void Midimon::begin()
 {
-	g_serializerDIN5.reset();
-	g_serializerUSB.reset();
+	m_display.begin();
+	uc1701_test();
+	return;
+	m_serializerDIN5.reset();
+	m_serializerUSB.reset();
 	Serial.begin(31250);
+
+	getActiveMode()->onEnter(this);
 }
 
-void Midimon_::setMode(MidimonMode mode)
+void Midimon::setInterfaceMode(MidimonInterfaceMode mode)
 {
-	g_serializerDIN5.reset();
-	g_serializerUSB.reset();
-	g_mode = mode;
+	m_serializerDIN5.reset();
+	m_serializerUSB.reset();
+	m_mode = mode;
 }
 
-MidimonMode Midimon_::getMode() const
+MidimonInterfaceMode Midimon::getInterfaceMode() const
 {
-	return g_mode;
+	return m_mode;
 }
 
-static void process(MidimonPort src, MidimonPort dst, Stream &input, Stream &output, MidiToUsb &serializer)
+void Midimon::process(MidimonPort src, MidimonPort dst, Stream &input, Stream &output, MidiToUsb &serializer)
 {
 	MidiToUsb m2u = serializer;
 	midi_event_t ev;
@@ -53,15 +58,24 @@ static void process(MidimonPort src, MidimonPort dst, Stream &input, Stream &out
 	{
 		if (serializer.process((u8)c, ev))
 		{
-			midimon_incoming(src, ev, true);
-			if (midimon_process(src, dst, ev.m_data))
+			handleIncoming(src, ev);
+			uint8_t len = midi_get_data_length(ev);
+			if (!m_processFn)
+			{
+				handleOutgoing(dst, ev);
+				for (uint8_t i=0; i<len; ++i)
+				{
+					output.write(ev.m_data[i]);
+				}
+			}
+			else if (m_processFn(src, dst, ev.m_data, len))
 			{
 				midi_event_t processed;
 				for (uint8_t i=0; i<3; ++i)
 				{
 					if (m2u.process(ev.m_data[i], processed))
 					{
-						midimon_outgoing(dst, processed, true);
+						handleOutgoing(dst, processed);
 						for (uint8_t j=0; j<=i; ++j)
 						{
 							output.write(processed.m_data[j]);
@@ -70,24 +84,35 @@ static void process(MidimonPort src, MidimonPort dst, Stream &input, Stream &out
 					}
 				}
 			}
-			else midimon_outgoing(PORT_NONE, midi_event_t(), false);
+			else handleOutgoing(PORT_NONE, midi_event_t());
 		}
 	}
 }
 
-#define Serial USBMIDI
+void Midimon::handleIncoming(MidimonPort src, const midi_event_t &event)
+{
+	getActiveMode()->onIncomingMidiEvent(src, event);
+}
 
-void Midimon_::poll()
+void Midimon::handleOutgoing(MidimonPort dst, const midi_event_t &event)
+{
+	getActiveMode()->onOutgoingMidiEvent(dst, event);
+}
+
+void Midimon::poll()
 {
 	USBMIDI.poll();
-	switch (g_mode)
+	switch (m_mode)
 	{
-	case MODE_PASSTHROUGH:
-		process(PORT_DIN5, PORT_DIN5, Serial, Serial, g_serializerDIN5);
+	case MODE_DIN5_ONLY:
+		process(PORT_DIN5, PORT_DIN5, Serial, Serial, m_serializerDIN5);
+		break;
+	case MODE_USB_ONLY:
+		process(PORT_USB, PORT_USB, USBMIDI, USBMIDI, m_serializerUSB);
 		break;
 	case MODE_USB_INTERFACE:
-		process(PORT_DIN5, PORT_USB, Serial, USBMIDI, g_serializerDIN5);
-		process(PORT_USB, PORT_DIN5, USBMIDI, Serial, g_serializerUSB);
+		process(PORT_DIN5, PORT_USB, Serial, USBMIDI, m_serializerDIN5);
+		process(PORT_USB, PORT_DIN5, USBMIDI, Serial, m_serializerUSB);
 		break;
 	}
 }
