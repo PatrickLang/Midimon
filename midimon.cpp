@@ -7,9 +7,10 @@
 
 #include "UC1701.h"
 
+#include "midimon_event_display_mode.h"
+
 void Midimon::init(IMidimonMode **modes, uint8_t n)
 {
-	uc1701_test();
 	m_modes = modes;
 	m_modeCount = n;
 	m_activeModeId = 0;
@@ -21,15 +22,12 @@ void Midimon::init(IMidimonMode **modes, uint8_t n)
 
 IMidimonMode * Midimon::getActiveMode() const
 {
-	uc1701_test();
 	return !m_modalMode ? m_modes[m_activeModeId] : m_modalMode;
 }
 
 void Midimon::begin()
 {
 	m_display.begin();
-	uc1701_test();
-	return;
 	m_serializerDIN5.reset();
 	m_serializerUSB.reset();
 	Serial.begin(31250);

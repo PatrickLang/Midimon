@@ -14,7 +14,7 @@ private:
 	T *m_object;
 };
 
-template <typename T> ConversionHelper<T> static_alloc()
+template <typename T> inline ConversionHelper<T> static_alloc()
 {
 	static T t;
 	return &t;

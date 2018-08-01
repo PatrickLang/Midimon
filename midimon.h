@@ -57,6 +57,14 @@ public:
 		init(modes, count);
 	}
 
+	Midimon(IMidimonDisplay &display, IMidimonMode **modes, uint8_t count)
+		:m_display(display)
+		,m_serializerDIN5(0)
+		,m_serializerUSB(0)
+	{
+		init(modes, count);
+	}
+
 	void setProcessFunction(midimon_process_fn fn);
 
 	void begin();
@@ -66,7 +74,7 @@ public:
 	MidimonInterfaceMode getInterfaceMode() const;
 
 	inline IMidimonDisplay &getDisplay() const { return m_display; }
-	inline MidimonRenderer &getRenderer() { m_renderer; }
+	inline MidimonRenderer &getRenderer() { return m_renderer; }
 
 private:
 	void init(IMidimonMode **modes, uint8_t n);

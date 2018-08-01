@@ -7,7 +7,7 @@
 #include "midimon_event_display_mode.h"
 
 MODES_BEGIN(modes)
-	MODES_ADD(MidimonModeBase)
+	MODES_ADD(EventDisplayMode)
 MODES_END()
 
 MidimonDisplay_UC1701 display;

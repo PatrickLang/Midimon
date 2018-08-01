@@ -28,7 +28,7 @@ uint8_t MidimonRenderer::printHex(uint8_t value)
 {
 	printChar(HEX[value>>4]);
 	printChar(HEX[value&0xf]);
-	return 2 * FONT_WIDTH;
+	return 2 * (FONT_WIDTH+1);
 }
 
 uint8_t MidimonRenderer::printMidiEventHex(const midi_event_t &event)
@@ -41,7 +41,6 @@ uint8_t MidimonRenderer::printMidiEventHex(const midi_event_t &event)
 	}
 	else
 	{
-		uint8_t j = 0;
 		for (uint8_t i = 0; i<len; ++i)
 		{
 			printHex(event.m_data[i]);
@@ -49,7 +48,7 @@ uint8_t MidimonRenderer::printMidiEventHex(const midi_event_t &event)
 		}
 	}
 
-	return 3 * 3 * FONT_WIDTH;
+	return 3 * 3 * (FONT_WIDTH+1);
 }
 
 uint8_t MidimonRenderer::printDec(uint8_t val, uint8_t padding)
@@ -95,7 +94,7 @@ uint8_t MidimonRenderer::printNote(uint8_t note)
 	if (note > 127)
 		return 0;
 
-	static const char NOTES[12] = {
+	static const uint8_t NOTES[12] = {
 		// 0x80 is used to indicate a #.
 		'C', 0x80 | 'C', 'D', 0x80 | 'D', 'E', 'F', 0x80 | 'F', 'G', 0x80 | 'G', 'A', 0x80 | 'A', 'B'
 	};
@@ -117,4 +116,34 @@ uint8_t MidimonRenderer::printNote(uint8_t note)
 		x += printDec(octave, 2);
 	}
 	return x;
+}
+
+void MidimonRenderer::begin()
+{
+	m_display->begin();
+}
+
+void MidimonRenderer::setDrawPosition(uint8_t x, uint8_t y_8)
+{
+	m_display->setDrawPosition(x, y_8);
+}
+
+void MidimonRenderer::setVerticalScroll(uint8_t line)
+{
+	m_display->setVerticalScroll(line);
+}
+
+void MidimonRenderer::addVerticalScroll(int8_t lines)
+{
+	m_display->addVerticalScroll(lines);
+}
+
+void MidimonRenderer::drawBitmap(const void * data, uint8_t n)
+{
+	m_display->drawBitmap(data, n);
+}
+
+void MidimonRenderer::drawBitmap_P(const void * data, uint8_t n)
+{
+	m_display->drawBitmap_P(data, n);
 }
