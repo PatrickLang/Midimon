@@ -11,8 +11,8 @@ public:
 	virtual void onEnter(Midimon *midimon) = 0;
 	virtual void onExit() = 0;
 
-	// Return true to indicate that this event overrides default Midimon behavior.
-	virtual bool onButtonEvent(MidimonButton btn, bool isDown) = 0;
+	// Only modes executed as Modal receive input events.
+	virtual void onButtonEvent(MidimonButton btn, bool isDown) = 0;
 
 	virtual void onIncomingMidiEvent(MidimonPort src, const midi_event_t &event) = 0;
 	virtual void onOutgoingMidiEvent(MidimonPort dst, const midi_event_t &event) = 0;
@@ -35,7 +35,7 @@ public:
 		m_midimon = NULL;
 	}
 
-	virtual bool onButtonEvent(MidimonButton btn, bool isDown) override { return false; }
+	virtual void onButtonEvent(MidimonButton btn, bool isDown) override {}
 
 	virtual void onIncomingMidiEvent(MidimonPort src, const midi_event_t &event) override {}
 	virtual void onOutgoingMidiEvent(MidimonPort dst, const midi_event_t &event) override {}

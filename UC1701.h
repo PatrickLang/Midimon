@@ -6,6 +6,7 @@
 void uc1701_init(int ss, int cd, int reset);
 
 void uc1701_reset(); // Called by init automatically.
+void uc1701_clear();
 
 void uc1701_set_scroll(uint8_t line);
 void uc1701_add_scroll(int8_t delta);

@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 
+#include "midimon_input.h"
 #include "midimon_renderer.h"
 #include "midimon_utils.h"
 
@@ -27,13 +28,6 @@ enum MidimonPort
 	PORT_NONE, // Used for discarded output.
 	PORT_DIN5,
 	PORT_USB,
-};
-
-enum MidimonButton
-{
-	BUTTON_ENTER,
-	BUTTON_UP,
-	BUTTON_DOWN,
 };
 
 enum MidimonInterfaceMode
@@ -76,9 +70,16 @@ public:
 	inline IMidimonDisplay &getDisplay() const { return m_display; }
 	inline MidimonRenderer &getRenderer() { return m_renderer; }
 
+	// Runs the loop with the given modal mode, can be used recursively for sub-modes.
+	// Only Modal modes receive input events.
+	void runModalMode(IMidimonMode &mode);
+	void exitModalMode();
+
 private:
 	void init(IMidimonMode **modes, uint8_t n);
 	IMidimonMode *getActiveMode() const;
+
+	void switchMode(uint8_t modeId);
 
 	void process(MidimonPort src, MidimonPort dst, Stream &input, Stream &output, MidiToUsb &serializer);
 	void handleIncoming(MidimonPort src, const midi_event_t &event);

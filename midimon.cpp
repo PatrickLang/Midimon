@@ -4,10 +4,13 @@
 #include "midimon.h"
 #include "midimon_display.h"
 #include "midimon_mode.h"
+#include "midimon_settings.h"
 
 #include "UC1701.h"
 
 #include "midimon_event_display_mode.h"
+
+static MidimonSettings g_settings;
 
 void Midimon::init(IMidimonMode **modes, uint8_t n)
 {
@@ -25,12 +28,23 @@ IMidimonMode * Midimon::getActiveMode() const
 	return !m_modalMode ? m_modes[m_activeModeId] : m_modalMode;
 }
 
+void Midimon::switchMode(uint8_t modeId)
+{
+	getActiveMode()->onExit();
+	uc1701_clear();
+	m_activeModeId = modeId;
+	getActiveMode()->onEnter(this);
+}
+
 void Midimon::begin()
 {
+	m_modalMode = NULL;
 	m_display.begin();
 	m_serializerDIN5.reset();
 	m_serializerUSB.reset();
 	Serial.begin(31250);
+
+	input_init();
 
 	getActiveMode()->onEnter(this);
 }
@@ -45,6 +59,29 @@ void Midimon::setInterfaceMode(MidimonInterfaceMode mode)
 MidimonInterfaceMode Midimon::getInterfaceMode() const
 {
 	return m_mode;
+}
+
+void Midimon::runModalMode(IMidimonMode &mode)
+{
+	IMidimonMode *previousModalMode = m_modalMode;
+	getActiveMode()->onExit();
+	m_modalMode = &mode;
+	uc1701_clear();
+	m_modalMode->onEnter(this);
+	while (m_modalMode != NULL)
+	{
+		extern void loop();
+		loop();
+	}
+	m_modalMode = previousModalMode;
+	uc1701_clear();
+	getActiveMode()->onEnter(this);
+}
+
+void Midimon::exitModalMode()
+{
+	m_modalMode->onExit();
+	m_modalMode = NULL;
 }
 
 void Midimon::process(MidimonPort src, MidimonPort dst, Stream &input, Stream &output, MidiToUsb &serializer)
@@ -112,5 +149,31 @@ void Midimon::poll()
 		process(PORT_DIN5, PORT_USB, Serial, USBMIDI, m_serializerDIN5);
 		process(PORT_USB, PORT_DIN5, USBMIDI, Serial, m_serializerUSB);
 		break;
+	}
+	InputEvent e;
+	while (input_get_event(e))
+	{
+		if (m_modalMode == NULL)
+		{
+			if (e.m_event == EVENT_UP)
+				continue;
+
+			switch (e.m_button)
+			{
+			case BUTTON_ENTER:
+				runModalMode(g_settings);
+				continue;
+			case BUTTON_UP:
+				switchMode((m_activeModeId + 1) % m_modeCount);
+				break;
+			case BUTTON_DOWN:
+				switchMode((m_activeModeId + m_modeCount - 1) % m_modeCount);
+				break;
+			}
+		}
+		else
+		{
+			m_modalMode->onButtonEvent(e.m_button, e.m_event == EVENT_DOWN);
+		}
 	}
 }

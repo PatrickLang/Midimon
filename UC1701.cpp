@@ -192,12 +192,7 @@ void uc1701_reset()
 		uc1701_set_all_pixels_on(false);                // 0xa5
 		uc1701_set_display_enable(true);                // 0xaf
 
-		uc1701_mode(DATA);
-		for (int i=0; i<132 * 65 / 8; ++i)
-		{
-			uc1701_send(0);
-			uc1701_send(0);
-		}
+		uc1701_clear();
 
 #if 0
 		uc1701_mode(COMMAND);
@@ -227,6 +222,17 @@ void uc1701_reset()
 			uc1701_send(0x55);
 		}
 #endif
+	}
+}
+
+void uc1701_clear()
+{
+	uc1701_mode(DATA);
+	Transaction t;
+	for (int i = 0; i<132 * 65 / 8; ++i)
+	{
+		uc1701_send(0);
+		uc1701_send(0);
 	}
 }
 

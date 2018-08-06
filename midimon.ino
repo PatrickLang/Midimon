@@ -5,6 +5,7 @@
 #include "midimon_mode.h"
 #include "midimon_utils.h"
 #include "midimon_event_display_mode.h"
+#include "midimon_settings.h"
 
 MODES_BEGIN(modes)
 	MODES_ADD(EventDisplayMode)
