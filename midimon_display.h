@@ -19,11 +19,14 @@ public:
 	virtual void setVerticalScroll(uint8_t line) = 0;
 	virtual void addVerticalScroll(int8_t lines) = 0;
 
+	// Draw n x 8 pixels of empty (inverse = false) or filled (inverse = true) space at current drawing position.
+	virtual void drawSpace(uint8_t n , bool inverse) = 0;
+
 	// Draw n x 8 pixels at current drawing position.
-	virtual void drawBitmap(const void *data, uint8_t n) = 0;
+	virtual void drawBitmap(const void *data, uint8_t n, bool inverse) = 0;
 
 	// Same as above, but for use with PROGMEM data.
-	virtual void drawBitmap_P(const void *data, uint8_t n) = 0;
+	virtual void drawBitmap_P(const void *data, uint8_t n, bool inverse) = 0;
 };
 
 #endif // MIDIMON_DISPLAY_H

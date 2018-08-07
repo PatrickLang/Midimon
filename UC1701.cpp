@@ -257,23 +257,51 @@ void uc1701_set_position(uint8_t x, uint8_t y)
 	uc1701_set_page_address((g_scroll >> 3) + y);
 }
 
-void uc1701_draw_bitmap(const void *data, uint8_t n)
+void uc1701_draw_space(uint8_t n, bool inverse)
+{
+	uc1701_mode(DATA);
+	Transaction t;
+	uint8_t byte = !inverse ? 0x00 : 0xff;
+	while (n-- != 0)
+		uc1701_send(byte);
+}
+
+void uc1701_draw_bitmap(const void *data, uint8_t n, bool inverse)
 {
 	uc1701_mode(DATA);
 	Transaction t;
 	const uint8_t *p = (const uint8_t*)data;
-	while (n-- != 0)
-		uc1701_send(*p++);
+	if (!inverse)
+	{
+		while (n-- != 0)
+			uc1701_send(*p++);
+	}
+	else
+	{
+		while (n-- != 0)
+			uc1701_send(~(*p++));
+	}
 }
 
-void uc1701_draw_progmem_bitmap(const void *data, uint8_t n)
+void uc1701_draw_progmem_bitmap(const void *data, uint8_t n, bool inverse)
 {
 	uc1701_mode(DATA);
 	Transaction t;
 	const uint8_t *p = (const uint8_t *)data;
-	while (n-- != 0)
+	if (!inverse)
 	{
-		uint8_t byte = pgm_read_byte(p++);
-		uc1701_send(byte);
+		while (n-- != 0)
+		{
+			uint8_t byte = pgm_read_byte(p++);
+			uc1701_send(byte);
+		}
+	}
+	else
+	{
+		while (n-- != 0)
+		{
+			uint8_t byte = pgm_read_byte(p++);
+			uc1701_send(~byte);
+		}
 	}
 }

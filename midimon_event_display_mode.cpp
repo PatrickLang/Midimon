@@ -324,10 +324,10 @@ void EventDisplayMode::onOutgoingMidiEvent(MidimonPort dst, const midi_event_t &
 
 void EventDisplayMode::newLine()
 {
-	IMidimonDisplay &display = getMidimon()->getDisplay();
+	MidimonRenderer &renderer = getMidimon()->getRenderer();
 
 	uint8_t vline = 0xff;
-	display.addVerticalScroll(-8);
-	display.setDrawPosition(63, 0);
-	display.drawBitmap(&vline, sizeof(vline));
+	renderer.addVerticalScroll(-8);
+	renderer.setDrawPosition(63, 0);
+	renderer.drawBitmap(&vline, sizeof(vline));
 }

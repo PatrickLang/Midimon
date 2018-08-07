@@ -5,19 +5,24 @@
 
 #include <avr/pgmspace.h>
 
+void MidimonRenderer::resetState()
+{
+	setInverse(false);
+}
+
 uint8_t MidimonRenderer::printSymbol(Symbol sym)
 {
 	const uint8_t *p = SPECIAL_SYMBOLS[sym];
-	m_display->drawBitmap_P(p, SYMBOL_WIDTH);
+	m_display->drawBitmap_P(p, SYMBOL_WIDTH, m_inverse);
 	return SYMBOL_WIDTH;
 }
 
 uint8_t MidimonRenderer::printChar(char c)
 {
 	const uint8_t *p = &MICRO_FONT[(c - ' ') * FONT_WIDTH];
-	m_display->drawBitmap_P(p, FONT_WIDTH);
+	m_display->drawBitmap_P(p, FONT_WIDTH, m_inverse);
 	uint8_t empty = 0;
-	m_display->drawBitmap(&empty, sizeof(empty));
+	m_display->drawBitmap(&empty, sizeof(empty), m_inverse);
 	return FONT_WIDTH + 1;
 }
 
@@ -166,15 +171,37 @@ uint8_t MidimonRenderer::printDec16(uint16_t val, uint8_t padding)
 	return x;
 }
 
-uint8_t MidimonRenderer::printDec16(int16_t val)
+static uint8_t getDecimalLength(int16_t val)
+{
+	uint8_t n = 0;
+	if (val < 0)
+		++n;
+
+	while (val != 0)
+	{
+		++n;
+		val /= 10;
+	}
+
+	return n;
+}
+
+uint8_t MidimonRenderer::printDec16(int16_t val, uint8_t padding)
 {
 	if (val < 0)
 	{
-		printChar('-');
-		return FONT_WIDTH + 1 + printDec16((uint16_t)-val, 0);
+		uint8_t n = getDecimalLength(val);
+		uint8_t x = 0;
+
+		for (int8_t i=0; i<(int8_t)(padding - n); ++i)
+		{
+			x += printChar(' ');
+		}
+		x += printChar('-');
+		return x + printDec16((uint16_t)-val, 0);
 	}
 
-	return printDec16((uint16_t)val, 0);
+	return printDec16((uint16_t)val, padding);
 }
 
 uint8_t MidimonRenderer::printNote(uint8_t note)
@@ -226,12 +253,17 @@ void MidimonRenderer::addVerticalScroll(int8_t lines)
 	m_display->addVerticalScroll(lines);
 }
 
-void MidimonRenderer::drawBitmap(const void * data, uint8_t n)
+void MidimonRenderer::drawSpace(uint8_t n, bool inverse)
 {
-	m_display->drawBitmap(data, n);
+	m_display->drawSpace(n, inverse);
 }
 
-void MidimonRenderer::drawBitmap_P(const void * data, uint8_t n)
+void MidimonRenderer::drawBitmap(const void * data, uint8_t n, bool inverse)
 {
-	m_display->drawBitmap_P(data, n);
+	m_display->drawBitmap(data, n, inverse);
+}
+
+void MidimonRenderer::drawBitmap_P(const void * data, uint8_t n, bool inverse)
+{
+	m_display->drawBitmap_P(data, n, inverse);
 }

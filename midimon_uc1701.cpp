@@ -24,12 +24,17 @@ void MidimonDisplay_UC1701::addVerticalScroll(int8_t lines)
 	uc1701_add_scroll(lines);
 }
 
-void MidimonDisplay_UC1701::drawBitmap(const void * data, uint8_t n)
+void MidimonDisplay_UC1701::drawSpace(uint8_t n, bool inverse)
 {
-	uc1701_draw_bitmap(data, n);
+	uc1701_draw_space(n, inverse);
 }
 
-void MidimonDisplay_UC1701::drawBitmap_P(const void * data, uint8_t n)
+void MidimonDisplay_UC1701::drawBitmap(const void * data, uint8_t n, bool inverse)
 {
-	uc1701_draw_progmem_bitmap(data, n);
+	uc1701_draw_bitmap(data, n, inverse);
+}
+
+void MidimonDisplay_UC1701::drawBitmap_P(const void * data, uint8_t n, bool inverse)
+{
+	uc1701_draw_progmem_bitmap(data, n, inverse);
 }

@@ -32,6 +32,7 @@ void Midimon::switchMode(uint8_t modeId)
 {
 	getActiveMode()->onExit();
 	uc1701_clear();
+	m_renderer.resetState();
 	m_activeModeId = modeId;
 	getActiveMode()->onEnter(this);
 }
@@ -61,12 +62,13 @@ MidimonInterfaceMode Midimon::getInterfaceMode() const
 	return m_mode;
 }
 
-void Midimon::runModalMode(IMidimonMode &mode)
+void Midimon::runModalMode(IMidimonModalMode &mode)
 {
-	IMidimonMode *previousModalMode = m_modalMode;
+	IMidimonModalMode *previousModalMode = m_modalMode;
 	getActiveMode()->onExit();
 	m_modalMode = &mode;
 	uc1701_clear();
+	m_renderer.resetState();
 	m_modalMode->onEnter(this);
 	while (m_modalMode != NULL)
 	{
@@ -75,6 +77,7 @@ void Midimon::runModalMode(IMidimonMode &mode)
 	}
 	m_modalMode = previousModalMode;
 	uc1701_clear();
+	m_renderer.resetState();
 	getActiveMode()->onEnter(this);
 }
 

@@ -21,6 +21,7 @@
 
 class IMidimonDisplay;
 class IMidimonMode;
+class IMidimonModalMode;
 struct midi_event_t;
 
 enum MidimonPort
@@ -72,7 +73,7 @@ public:
 
 	// Runs the loop with the given modal mode, can be used recursively for sub-modes.
 	// Only Modal modes receive input events.
-	void runModalMode(IMidimonMode &mode);
+	void runModalMode(IMidimonModalMode &mode);
 	void exitModalMode();
 
 private:
@@ -92,7 +93,7 @@ private:
 	IMidimonMode **m_modes;
 	uint8_t m_modeCount;
 	uint8_t m_activeModeId;
-	IMidimonMode *m_modalMode;
+	IMidimonModalMode *m_modalMode;
 
 	MidimonInterfaceMode m_mode;
 	MidiToUsb m_serializerDIN5;

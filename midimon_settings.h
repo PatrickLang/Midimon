@@ -33,7 +33,7 @@ struct Setting
 	SettingValueType m_max;
 };
 
-class MidimonSettings : public MidimonModeBase
+class MidimonSettings : public MidimonModalModeBase
 {
 public:
 	MidimonSettings();
@@ -44,7 +44,14 @@ public:
 	virtual void onButtonEvent(MidimonButton btn, bool isDown) override;
 
 private:
+	void scrollUp();
+	void scrollDown();
 
+	void moveCursorUp();
+	void moveCursorDown();
+
+	uint8_t m_currentIndex;
+	uint8_t m_scrollIndex;
 };
 
 #endif // MIDIMON_SETTINGS_H
