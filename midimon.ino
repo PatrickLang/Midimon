@@ -21,6 +21,8 @@ bool midimon_process(MidimonPort src, MidimonPort dst, u8 msg[3])
 
 void setup()
 {
+	pinMode(LCD_BACKLIGHT, OUTPUT);
+	digitalWrite(LCD_BACKLIGHT, HIGH);
 	midimon.begin();
 }
 

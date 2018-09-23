@@ -4,8 +4,9 @@
 enum MidimonButton
 {
 	BUTTON_ENTER = 0,
-	BUTTON_DOWN,
+	BUTTON_BACK,
 	BUTTON_UP,
+	BUTTON_DOWN,
 
 	// Must be the last one!
 	BUTTON_COUNT

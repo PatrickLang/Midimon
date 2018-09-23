@@ -98,6 +98,9 @@ void MidimonSettings::onButtonEvent(MidimonButton btn, bool isDown)
 		switch (btn)
 		{
 		case BUTTON_ENTER:
+			//getMidimon()->exitModalMode();
+			return;
+		case BUTTON_BACK:
 			getMidimon()->exitModalMode();
 			return;
 		case BUTTON_UP:

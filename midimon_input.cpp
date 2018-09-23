@@ -14,7 +14,7 @@ static unsigned long g_lastUpdated[BUTTON_COUNT];
 static void updateState()
 {
 	// Read the state of the button pins directly and map them to the order of MidimonButton enum.
-	uint8_t state = ((PIND & (1 << 6)) >> 6) | ((PINC & ((1 << 3) | (1 << 4))) >> 2);
+	uint8_t state = (PINC & 0x3C) >> 2;
 
 	uint8_t diff = state ^ g_state;
 
@@ -42,15 +42,10 @@ ISR(PCINT1_vect)
 	updateState();
 }
 
-ISR(PCINT2_vect)
-{
-	updateState();
-}
-
 void input_init()
 {
 	g_state = 0xff;
-	int pins[] = { PIN_BTN_ENTER, PIN_BTN_UP, PIN_BTN_DOWN };
+	int pins[] = { PIN_BTN_OK, PIN_BTN_BACK, PIN_BTN_UP, PIN_BTN_DOWN };
 
 	for (int p : pins)
 	{
