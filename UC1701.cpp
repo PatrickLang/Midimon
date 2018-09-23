@@ -189,7 +189,7 @@ void uc1701_reset()
 		uc1701_set_all_pixels_on(true);                 // 0xa5
 		uc1701_set_advanced_settings(true, true, true); // 0xfa 0x83
 
-		uc1701_set_all_pixels_on(false);                // 0xa5
+		uc1701_set_all_pixels_on(false);                // 0xa4
 		uc1701_set_display_enable(true);                // 0xaf
 
 		uc1701_clear();
