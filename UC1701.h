@@ -15,4 +15,6 @@ void uc1701_draw_space(uint8_t n, bool inverse); // n x 8 vertical line.
 void uc1701_draw_bitmap(const void *data, uint8_t n, bool inverse); // Draw n x 8 pixels.
 void uc1701_draw_progmem_bitmap(const void *data, uint8_t n, bool inverse); // Draw n x 8 pixels from PROGMEM memory.
 
+void uc1701_set_contrast(uint8_t contrast);
+
 #endif // UC1701_H

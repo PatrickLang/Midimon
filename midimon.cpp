@@ -12,15 +12,52 @@
 
 static MidimonSettings g_settings;
 
+class SettingsListener : public MidimonSettings::IListener
+{
+public:
+	SettingsListener()
+		:m_midimon(NULL)
+	{
+	}
+
+	void setMidimon(Midimon *midimon)
+	{
+		m_midimon = midimon;
+	}
+
+	virtual void onChange(SettingId settingId, SettingValueType value) override
+	{
+		switch (settingId)
+		{
+		case SETTING_LCD_BACKLIGHT:
+			m_midimon->setBacklight(value != 0);
+			break;
+		case SETTING_MIDI_ONLY:
+			m_midimon->setInterfaceMode(value != 0 ? MODE_DIN5_ONLY : MODE_USB_INTERFACE);
+			break;
+		case SETTING_CONTRAST:
+			uc1701_set_contrast(value * 256 / 100);
+			break;
+		}
+	}
+
+private:
+	Midimon *m_midimon;
+};
+
+static SettingsListener g_settingsListener;
+
 void Midimon::init(IMidimonMode **modes, uint8_t n)
 {
 	m_modes = modes;
 	m_modeCount = n;
 	m_activeModeId = 0;
 	m_processFn = NULL;
-	m_mode = MODE_USB_ONLY;
+	//m_mode = MODE_USB_ONLY;
+	m_mode = MODE_USB_INTERFACE;
 	m_modalMode = NULL;
 	m_renderer.setDisplay(&m_display);
+	g_settingsListener.setMidimon(this);
 }
 
 IMidimonMode * Midimon::getActiveMode() const
@@ -37,6 +74,11 @@ void Midimon::switchMode(uint8_t modeId)
 	getActiveMode()->onEnter(this);
 }
 
+void Midimon::setProcessFunction(midimon_process_fn fn)
+{
+	m_processFn = fn;
+}
+
 void Midimon::begin()
 {
 	m_modalMode = NULL;
@@ -47,7 +89,17 @@ void Midimon::begin()
 
 	input_init();
 
+	pinMode(LCD_BACKLIGHT, OUTPUT);
+
+	setBacklight(MidimonSettings::get(SETTING_LCD_BACKLIGHT) != 0);
+	MidimonSettings::registerListener(g_settingsListener);
+
 	getActiveMode()->onEnter(this);
+}
+
+void Midimon::setBacklight(bool on)
+{
+	digitalWrite(LCD_BACKLIGHT, on ? HIGH : LOW);
 }
 
 void Midimon::setInterfaceMode(MidimonInterfaceMode mode)
@@ -153,6 +205,7 @@ void Midimon::poll()
 		process(PORT_USB, PORT_DIN5, USBMIDI, Serial, m_serializerUSB);
 		break;
 	}
+	input_update();
 	InputEvent e;
 	while (input_get_event(e))
 	{

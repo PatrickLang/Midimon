@@ -13,6 +13,7 @@ enum SettingId
 	SETTING_MIDI_ONLY        = 1,
 	SETTING_CONTRAST         = 2,
 	SETTING_FILTER_NOISY_MSG = 3,
+	SETTING_LCD_BACKLIGHT    = 4,
 
 	// Must be the last one!
 	SETTING_COUNT
@@ -36,7 +37,25 @@ struct Setting
 class MidimonSettings : public MidimonModalModeBase
 {
 public:
+	class IListener
+	{
+	public:
+		inline IListener()
+			:m_next(NULL)
+		{
+		}
+
+		virtual void onChange(SettingId settingId, SettingValueType value) = 0;
+
+	private:
+		friend class MidimonSettings;
+		IListener *m_next;
+	};
+
 	MidimonSettings();
+
+	static SettingValueType get(SettingId settingId);
+	static void registerListener(IListener &listener);
 
 	virtual void onEnter(Midimon *midimon) override;
 	virtual void onExit() override;
@@ -50,8 +69,15 @@ private:
 	void moveCursorUp();
 	void moveCursorDown();
 
+	bool m_editing;
 	uint8_t m_currentIndex;
 	uint8_t m_scrollIndex;
+
+	void changeSetting(SettingId settingId, SettingValueType delta);
+
+	static void fireChangeEvent(SettingId settingId, SettingValueType value);
+
+	static IListener *s_listenerListHead;
 };
 
 #endif // MIDIMON_SETTINGS_H

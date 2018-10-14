@@ -14,15 +14,14 @@ MODES_END()
 MidimonDisplay_UC1701 display;
 Midimon midimon(display, modes);
 
-bool midimon_process(MidimonPort src, MidimonPort dst, u8 msg[3])
+bool midimon_process(MidimonPort src, MidimonPort dst, u8 msg[3], u8 n)
 {
 	return true;
 }
 
 void setup()
 {
-	pinMode(LCD_BACKLIGHT, OUTPUT);
-	digitalWrite(LCD_BACKLIGHT, HIGH);
+	midimon.setProcessFunction(&midimon_process);
 	midimon.begin();
 }
 

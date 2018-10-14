@@ -65,6 +65,8 @@ public:
 	void begin();
 	void poll();
 
+	void setBacklight(bool on);
+
 	void setInterfaceMode(MidimonInterfaceMode mode);
 	MidimonInterfaceMode getInterfaceMode() const;
 

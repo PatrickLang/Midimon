@@ -25,6 +25,7 @@ struct InputEvent
 };
 
 void input_init();
+void input_update();
 bool input_get_event(InputEvent &result);
 
 #endif // MIDIMON_INPUT_H
