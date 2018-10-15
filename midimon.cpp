@@ -243,7 +243,7 @@ void Midimon::poll()
 		else
 		{
 			m_modalMode->onButtonEvent(e.m_button, e.m_event == EVENT_DOWN);
-			if (e.m_button == BUTTON_BACK && e.m_event == EVENT_DOWN)
+			if (m_modalMode && e.m_button == BUTTON_BACK && e.m_event == EVENT_DOWN)
 				m_modalMode->onBackPressed();
 		}
 	}
