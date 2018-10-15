@@ -5,6 +5,11 @@
 
 #include <avr/pgmspace.h>
 
+void MidimonRenderer::clear()
+{
+	m_display->clear();
+}
+
 void MidimonRenderer::resetState()
 {
 	setInverse(false);

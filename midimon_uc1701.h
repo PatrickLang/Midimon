@@ -13,6 +13,7 @@ public:
 	virtual void drawSpace(uint8_t n, bool inverse) override;
 	virtual void drawBitmap(const void * data, uint8_t n, bool inverse) override;
 	virtual void drawBitmap_P(const void * data, uint8_t n, bool inverse) override;
+	virtual void clear() override;
 };
 
 #endif // MIDIMON_UC1701_H

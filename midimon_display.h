@@ -27,6 +27,8 @@ public:
 
 	// Same as above, but for use with PROGMEM data.
 	virtual void drawBitmap_P(const void *data, uint8_t n, bool inverse) = 0;
+
+	virtual void clear() = 0;
 };
 
 #endif // MIDIMON_DISPLAY_H

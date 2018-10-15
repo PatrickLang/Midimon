@@ -38,3 +38,8 @@ void MidimonDisplay_UC1701::drawBitmap_P(const void * data, uint8_t n, bool inve
 {
 	uc1701_draw_progmem_bitmap(data, n, inverse);
 }
+
+void MidimonDisplay_UC1701::clear()
+{
+	uc1701_clear();
+}

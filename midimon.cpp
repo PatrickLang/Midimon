@@ -235,11 +235,16 @@ void Midimon::poll()
 			case BUTTON_DOWN:
 				switchMode((m_activeModeId + m_modeCount - 1) % m_modeCount);
 				break;
+			case BUTTON_BACK:
+				getActiveMode()->onBackPressed();
+				break;
 			}
 		}
 		else
 		{
 			m_modalMode->onButtonEvent(e.m_button, e.m_event == EVENT_DOWN);
+			if (e.m_button == BUTTON_BACK && e.m_event == EVENT_DOWN)
+				m_modalMode->onBackPressed();
 		}
 	}
 }

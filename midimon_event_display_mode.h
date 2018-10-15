@@ -15,6 +15,7 @@ public:
 
 	virtual void onInit() override;
 	virtual void onEnter(Midimon *midimon) override;
+	virtual void onBackPressed() override;
 	virtual void onIncomingMidiEvent(MidimonPort src, const midi_event_t &event) override;
 	virtual void onOutgoingMidiEvent(MidimonPort dst, const midi_event_t &event) override;
 

@@ -13,6 +13,9 @@ public:
 	virtual void onEnter(Midimon *midimon) = 0;
 	virtual void onExit() = 0;
 
+	// Only input reported to regular modes.
+	virtual void onBackPressed() = 0;
+
 	virtual void onIncomingMidiEvent(MidimonPort src, const midi_event_t &event) = 0;
 	virtual void onOutgoingMidiEvent(MidimonPort dst, const midi_event_t &event) = 0;
 };
@@ -33,6 +36,8 @@ public:
 
 	virtual void onEnter(Midimon *midimon) override { m_midimon = midimon; }
 	virtual void onExit() override { m_midimon = NULL; }
+
+	virtual void onBackPressed() override {}
 
 	virtual void onIncomingMidiEvent(MidimonPort src, const midi_event_t &event) override {}
 	virtual void onOutgoingMidiEvent(MidimonPort dst, const midi_event_t &event) override {}

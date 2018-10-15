@@ -22,6 +22,8 @@ public:
 	inline void setInverse(bool inverse) { m_inverse = inverse; }
 	inline bool getInverse() const { return m_inverse; }
 
+	void clear();
+
 	void resetState();
 
 	uint8_t printSymbol(Symbol sym);

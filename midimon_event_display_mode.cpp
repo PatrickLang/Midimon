@@ -94,14 +94,22 @@ void EventDisplayMode::onEnter(Midimon *midimon)
 	clear();
 }
 
+void EventDisplayMode::onBackPressed()
+{
+	if (getMidimon())
+		clear();
+}
+
 void EventDisplayMode::clear()
 {
 	m_x = 0;
 
+	MidimonRenderer &renderer = getMidimon()->getRenderer();
+
+	renderer.clear();
+
 	for (int i = 0; i<8; ++i)
 		newLine();
-
-	MidimonRenderer &renderer = getMidimon()->getRenderer();
 
 	renderer.setDrawPosition(21, 7);
 	renderer.printString_P(getString_P(STRING_INPUT));
