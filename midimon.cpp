@@ -32,11 +32,13 @@ public:
 		case SETTING_LCD_BACKLIGHT:
 			m_midimon->setBacklight(value != 0);
 			break;
+		case SETTING_CONTRAST:
+			uc1701_set_contrast(value);
+			break;
 		case SETTING_MIDI_ONLY:
 			m_midimon->setInterfaceMode(value != 0 ? MODE_DIN5_ONLY : MODE_USB_INTERFACE);
 			break;
-		case SETTING_CONTRAST:
-			uc1701_set_contrast(value * 256 / 100);
+		default:
 			break;
 		}
 	}
@@ -53,7 +55,6 @@ void Midimon::init(IMidimonMode **modes, uint8_t n)
 	m_modeCount = n;
 	m_activeModeId = 0;
 	m_processFn = NULL;
-	//m_mode = MODE_USB_ONLY;
 	m_mode = MODE_USB_INTERFACE;
 	m_modalMode = NULL;
 	m_renderer.setDisplay(&m_display);
@@ -91,7 +92,8 @@ void Midimon::begin()
 
 	pinMode(LCD_BACKLIGHT, OUTPUT);
 
-	setBacklight(MidimonSettings::get(SETTING_LCD_BACKLIGHT) != 0);
+	g_settings.begin();
+
 	MidimonSettings::registerListener(g_settingsListener);
 
 	getActiveMode()->onEnter(this);

@@ -26,16 +26,16 @@ struct midi_event_t;
 
 enum MidimonPort
 {
-	PORT_NONE, // Used for discarded output.
-	PORT_DIN5,
-	PORT_USB,
+	PORT_NONE           = 0, // Used for discarded output.
+	PORT_DIN5           = 1,
+	PORT_USB            = 2,
 };
 
 enum MidimonInterfaceMode
 {
-	MODE_DIN5_ONLY,
-	MODE_USB_ONLY,
-	MODE_USB_INTERFACE,
+	MODE_DIN5_ONLY      = 0,
+	MODE_USB_ONLY       = 1,
+	MODE_USB_INTERFACE  = 2,
 };
 
 typedef bool (*midimon_process_fn)(MidimonPort src, MidimonPort dst, uint8_t msg[3], uint8_t n);

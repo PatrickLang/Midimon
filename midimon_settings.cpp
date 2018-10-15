@@ -1,5 +1,7 @@
 #include <avr/pgmspace.h>
 
+#include <EEPROM.h>
+
 #include "midimon_settings.h"
 #include "midimon.h"
 #include "midimon_renderer.h"
@@ -17,7 +19,7 @@ static Setting g_settings[SETTING_COUNT] =
 {
 	{ STR_DECODE_HEX,       TYPE_BOOL,    1,  0, 1 },
 	{ STR_MIDI_ONLY,        TYPE_BOOL,    0,  0, 1 },
-	{ STR_CONTRAST,         TYPE_INTEGER, 70, 0, 100 },
+	{ STR_CONTRAST,         TYPE_INTEGER, 40, 0, 63 },
 	{ STR_FILTER_NOISY_MSG, TYPE_BOOL,    1,  0, 1 },
 	{ STR_LCD_BACKLIGHT,    TYPE_BOOL,    1,  0, 1 },
 };
@@ -87,6 +89,11 @@ MidimonSettings::MidimonSettings()
 {
 }
 
+void MidimonSettings::begin()
+{
+	loadSettingsFromEEPROM();
+}
+
 SettingValueType MidimonSettings::get(SettingId settingId)
 {
 	if (settingId < 0 || settingId >= SETTING_COUNT)
@@ -95,8 +102,23 @@ SettingValueType MidimonSettings::get(SettingId settingId)
 	return g_settings[settingId].m_value;
 }
 
+MidimonSettings::IListener::IListener()
+	:m_next(NULL)
+{
+}
+
+// With optimization enabled incorrect code gets generated...
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
+
 void MidimonSettings::registerListener(IListener &listener)
 {
+	// Fire current value of all settings to the new listener.
+	for (int i=0; i<SETTING_COUNT; ++i)
+	{
+		listener.onChange((SettingId)i, g_settings[i].m_value);
+	}
+
 	if (s_listenerListHead == NULL)
 	{
 		s_listenerListHead = &listener;
@@ -110,6 +132,28 @@ void MidimonSettings::registerListener(IListener &listener)
 
 		l->m_next = &listener;
 		listener.m_next = NULL;
+	}
+}
+
+#pragma GCC pop_options
+
+void MidimonSettings::loadSettingsFromEEPROM()
+{
+	for (int i=0; i<SETTING_COUNT; ++i)
+	{
+		SettingValueType value;
+		EEPROM.get(i * sizeof(SettingValueType), value);
+
+		if (value != 0xffff)
+			g_settings[i].m_value = value;
+	}
+}
+
+void MidimonSettings::saveSettingsToEEPROM()
+{
+	for (int i=0; i<SETTING_COUNT; ++i)
+	{
+		EEPROM.put(i * sizeof(SettingValueType), g_settings[i].m_value);
 	}
 }
 
@@ -167,6 +211,8 @@ void MidimonSettings::onEnter(Midimon *midimon)
 void MidimonSettings::onExit()
 {
 	MidimonModalModeBase::onExit();
+
+	saveSettingsToEEPROM();
 }
 
 void MidimonSettings::onButtonEvent(MidimonButton btn, bool isDown)

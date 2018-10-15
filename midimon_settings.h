@@ -40,10 +40,7 @@ public:
 	class IListener
 	{
 	public:
-		inline IListener()
-			:m_next(NULL)
-		{
-		}
+		IListener();
 
 		virtual void onChange(SettingId settingId, SettingValueType value) = 0;
 
@@ -53,6 +50,8 @@ public:
 	};
 
 	MidimonSettings();
+
+	void begin();
 
 	static SettingValueType get(SettingId settingId);
 	static void registerListener(IListener &listener);
@@ -72,6 +71,9 @@ private:
 	bool m_editing;
 	uint8_t m_currentIndex;
 	uint8_t m_scrollIndex;
+
+	void loadSettingsFromEEPROM();
+	void saveSettingsToEEPROM();
 
 	void changeSetting(SettingId settingId, SettingValueType delta);
 

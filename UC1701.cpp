@@ -310,7 +310,7 @@ void uc1701_set_contrast(uint8_t contrast)
 {
 	uc1701_mode(COMMAND);
 	Transaction t;
-	uc1701_set_electronic_volume(contrast >> 2);
+	uc1701_set_electronic_volume(contrast);
 	//uc1701_set_bias_ratio(1);
 	//uc1701_set_resistor_ratio(5);
 }
