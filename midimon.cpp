@@ -32,7 +32,7 @@ public:
 		case SETTING_LCD_BACKLIGHT:
 			m_midimon->setBacklight(value != 0);
 			break;
-		case SETTING_CONTRAST:
+		case SETTING_LCD_CONTRAST:
 			uc1701_set_contrast(value);
 			break;
 		case SETTING_MIDI_ONLY:
@@ -47,7 +47,11 @@ private:
 	Midimon *m_midimon;
 };
 
-static SettingsListener g_settingsListener;
+inline static SettingsListener &getSettingsListener()
+{
+	static SettingsListener settingsListener;
+	return settingsListener;
+}
 
 void Midimon::init(IMidimonMode **modes, uint8_t n)
 {
@@ -58,7 +62,7 @@ void Midimon::init(IMidimonMode **modes, uint8_t n)
 	m_mode = MODE_USB_INTERFACE;
 	m_modalMode = NULL;
 	m_renderer.setDisplay(&m_display);
-	g_settingsListener.setMidimon(this);
+	getSettingsListener().setMidimon(this);
 }
 
 IMidimonMode * Midimon::getActiveMode() const
@@ -94,7 +98,11 @@ void Midimon::begin()
 
 	g_settings.begin();
 
-	MidimonSettings::registerListener(g_settingsListener);
+	MidimonSettings::registerListener(getSettingsListener());
+	for (uint8_t i=0; i<m_modeCount; ++i)
+	{
+		m_modes[i]->onInit();
+	}
 
 	getActiveMode()->onEnter(this);
 }

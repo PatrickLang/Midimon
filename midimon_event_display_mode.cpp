@@ -82,10 +82,20 @@ EventDisplayMode::EventDisplayMode()
 {
 }
 
+void EventDisplayMode::onInit()
+{
+	MidimonSettings::registerListener(*this);
+}
+
 void EventDisplayMode::onEnter(Midimon *midimon)
 {
 	MidimonModeBase::onEnter(midimon);
 
+	clear();
+}
+
+void EventDisplayMode::clear()
+{
 	m_x = 0;
 
 	for (int i = 0; i<8; ++i)
@@ -102,6 +112,13 @@ void EventDisplayMode::onEnter(Midimon *midimon)
 
 void EventDisplayMode::printEvent(MidimonRenderer &renderer, const midi_event_t &event)
 {
+	if (!m_decodeBytes)
+	{
+		printRaw(renderer, event);
+		fillRemainingPixels(renderer);
+		return;
+	}
+
 	uint8_t eventId = event.m_event & 0x0f;
 	switch (eventId)
 	{
@@ -216,6 +233,11 @@ void EventDisplayMode::printSysex(MidimonRenderer & renderer, const uint8_t * da
 	}
 }
 
+void EventDisplayMode::printRaw(MidimonRenderer &renderer, const midi_event_t &event)
+{
+	m_x += renderer.printMidiEventHex(event);
+}
+
 void EventDisplayMode::printSystemCommon(MidimonRenderer &renderer, const midi_event_t &event, uint8_t len)
 {
 	switch (len)
@@ -303,8 +325,46 @@ void EventDisplayMode::fillRemainingPixels(MidimonRenderer &renderer)
 		renderer.drawBitmap(&empty, 1);
 }
 
+void EventDisplayMode::onChange(SettingId settingId, SettingValueType value)
+{
+	bool handled = false;
+
+	switch (settingId)
+	{
+	case SETTING_DECODE_HEX:
+		handled = true;
+		m_decodeBytes = value != 0;
+		break;
+	case SETTING_FILTER_NOISY_MSG:
+		handled = true;
+		m_filterNoisyMsg = value != 0;
+		break;
+	}
+
+	if (handled && getMidimon())
+		clear();
+}
+
+bool EventDisplayMode::shouldFilterOut(const midi_event_t &event) const
+{
+	uint8_t byte = event.m_data[0];
+
+	// MIDI Sync
+	if (byte == 0xf8)
+		return true;
+
+	// Active Sensing
+	if (byte == 0xfe)
+		return true;
+
+	return false;
+}
+
 void EventDisplayMode::onIncomingMidiEvent(MidimonPort src, const midi_event_t &event)
 {
+	if (m_filterNoisyMsg && shouldFilterOut(event))
+		return;
+
 	MidimonRenderer &renderer = getMidimon()->getRenderer();
 
 	newLine();
@@ -315,6 +375,9 @@ void EventDisplayMode::onIncomingMidiEvent(MidimonPort src, const midi_event_t &
 
 void EventDisplayMode::onOutgoingMidiEvent(MidimonPort dst, const midi_event_t &event)
 {
+	if (m_filterNoisyMsg && shouldFilterOut(event))
+		return;
+
 	MidimonRenderer &renderer = getMidimon()->getRenderer();
 
 	m_x = 65;

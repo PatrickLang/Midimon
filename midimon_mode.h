@@ -8,6 +8,8 @@
 class IMidimonMode
 {
 public:
+	virtual void onInit() = 0;
+
 	virtual void onEnter(Midimon *midimon) = 0;
 	virtual void onExit() = 0;
 
@@ -26,6 +28,8 @@ class TMidimonModeBase : public Base
 {
 public:
 	TMidimonModeBase() {}
+
+	virtual void onInit() override {}
 
 	virtual void onEnter(Midimon *midimon) override { m_midimon = midimon; }
 	virtual void onExit() override { m_midimon = NULL; }

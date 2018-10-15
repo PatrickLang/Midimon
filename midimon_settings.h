@@ -9,11 +9,11 @@ typedef int16_t SettingValueType;
 
 enum SettingId
 {
-	SETTING_DECODE_HEX       = 0,
-	SETTING_MIDI_ONLY        = 1,
-	SETTING_CONTRAST         = 2,
-	SETTING_FILTER_NOISY_MSG = 3,
-	SETTING_LCD_BACKLIGHT    = 4,
+	SETTING_LCD_BACKLIGHT    = 0,
+	SETTING_LCD_CONTRAST     = 1,
+	SETTING_MIDI_ONLY        = 2,
+	SETTING_DECODE_HEX       = 3,
+	SETTING_FILTER_NOISY_MSG = 4,
 
 	// Must be the last one!
 	SETTING_COUNT

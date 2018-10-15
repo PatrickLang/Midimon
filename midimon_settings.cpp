@@ -9,19 +9,22 @@
 
 MidimonSettings::IListener *MidimonSettings::s_listenerListHead = NULL;
 
-static const char STR_DECODE_HEX[]       PROGMEM = "Decode Hex";
-static const char STR_MIDI_ONLY[]        PROGMEM = "DIN-5 Thru Only";
-static const char STR_CONTRAST[]         PROGMEM = "Screen Contrast";
-static const char STR_FILTER_NOISY_MSG[] PROGMEM = "Hide Noisy Messages";
+static const char STR_ON[]               PROGMEM = "Yes";
+static const char STR_OFF[]              PROGMEM = "No";
+
 static const char STR_LCD_BACKLIGHT[]    PROGMEM = "LCD Backlight";
+static const char STR_LCD_CONTRAST[]     PROGMEM = "LCD Contrast";
+static const char STR_MIDI_ONLY[]        PROGMEM = "DIN-5 Thru Only";
+static const char STR_DECODE_HEX[]       PROGMEM = "Decode MIDI Data";
+static const char STR_FILTER_NOISY_MSG[] PROGMEM = "Hide Noisy Messages";
 
 static Setting g_settings[SETTING_COUNT] =
 {
-	{ STR_DECODE_HEX,       TYPE_BOOL,    1,  0, 1 },
-	{ STR_MIDI_ONLY,        TYPE_BOOL,    0,  0, 1 },
-	{ STR_CONTRAST,         TYPE_INTEGER, 40, 0, 63 },
-	{ STR_FILTER_NOISY_MSG, TYPE_BOOL,    1,  0, 1 },
-	{ STR_LCD_BACKLIGHT,    TYPE_BOOL,    1,  0, 1 },
+	{ STR_LCD_BACKLIGHT,    TYPE_BOOL,    1,  0, 1 },  // SETTING_LCD_BACKLIGHT
+	{ STR_LCD_CONTRAST,     TYPE_INTEGER, 40, 0, 63 }, // SETTING_LCD_CONTRAST
+	{ STR_MIDI_ONLY,        TYPE_BOOL,    0,  0, 1 },  // SETTING_MIDI_ONLY
+	{ STR_DECODE_HEX,       TYPE_BOOL,    1,  0, 1 },  // SETTING_DECODE_HEX
+	{ STR_FILTER_NOISY_MSG, TYPE_BOOL,    1,  0, 1 },  // SETTING_FILTER_NOISY_MSG
 };
 
 enum RenderState
@@ -46,7 +49,7 @@ static void renderSetting(MidimonRenderer &renderer, RenderState state, const Se
 	switch (setting.m_type)
 	{
 	case TYPE_BOOL:
-		x += 4;
+		x += 4 * 3;
 		break;
 	case TYPE_INTEGER:
 		x += 4 * 6;
@@ -63,7 +66,15 @@ static void renderSetting(MidimonRenderer &renderer, RenderState state, const Se
 	switch (setting.m_type)
 	{
 	case TYPE_BOOL:
-		renderer.printDec(setting.m_value != 0 ? 1 : 0);
+		if (setting.m_value)
+		{
+			renderer.printString_P(STR_ON);
+		}
+		else
+		{
+			renderer.printChar(' ');
+			renderer.printString_P(STR_OFF);
+		}
 		break;
 	case TYPE_INTEGER:
 		renderer.printDec16(setting.m_value, 6);
@@ -107,10 +118,6 @@ MidimonSettings::IListener::IListener()
 {
 }
 
-// With optimization enabled incorrect code gets generated...
-#pragma GCC push_options
-#pragma GCC optimize ("O0")
-
 void MidimonSettings::registerListener(IListener &listener)
 {
 	// Fire current value of all settings to the new listener.
@@ -131,11 +138,10 @@ void MidimonSettings::registerListener(IListener &listener)
 			l = l->m_next;
 
 		l->m_next = &listener;
-		listener.m_next = NULL;
 	}
-}
 
-#pragma GCC pop_options
+	listener.m_next = NULL;
+}
 
 void MidimonSettings::loadSettingsFromEEPROM()
 {
@@ -145,7 +151,14 @@ void MidimonSettings::loadSettingsFromEEPROM()
 		EEPROM.get(i * sizeof(SettingValueType), value);
 
 		if (value != 0xffff)
+		{
+			if (value > g_settings[i].m_max)
+				value = g_settings[i].m_max;
+			else if (value < g_settings[i].m_min)
+				value = g_settings[i].m_min;
+
 			g_settings[i].m_value = value;
+		}
 	}
 }
 
@@ -238,7 +251,16 @@ void MidimonSettings::onButtonEvent(MidimonButton btn, bool isDown)
 			}
 			return;
 		case BUTTON_BACK:
-			getMidimon()->exitModalMode();
+			if (m_editing)
+			{
+				m_editing = false;
+				setRenderPosition(getMidimon()->getRenderer(), m_currentIndex - m_scrollIndex);
+				renderSetting(getMidimon()->getRenderer(), getRenderState(m_editing, m_currentIndex, m_currentIndex), g_settings[m_currentIndex]);
+			}
+			else
+			{
+				getMidimon()->exitModalMode();
+			}
 			return;
 		case BUTTON_UP:
 			if (!m_editing)
