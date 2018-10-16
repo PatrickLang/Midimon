@@ -20,7 +20,7 @@ static const char STR_FILTER_NOISY_MSG[] PROGMEM = "Hide Noisy Messages";
 
 static Setting g_settings[SETTING_COUNT] =
 {
-	{ STR_LCD_BACKLIGHT,    TYPE_BOOL,    1,  0, 1 },  // SETTING_LCD_BACKLIGHT
+	{ STR_LCD_BACKLIGHT,    TYPE_BOOL,    1,  0, 1 },  // SETTING_LCD_BACKLIGHT, Bootloader assumes backlight setting to be the very last EEPROM byte. 0x00 = off, anything else = on.
 	{ STR_LCD_CONTRAST,     TYPE_INTEGER, 40, 0, 63 }, // SETTING_LCD_CONTRAST
 	{ STR_MIDI_ONLY,        TYPE_BOOL,    0,  0, 1 },  // SETTING_MIDI_ONLY
 	{ STR_DECODE_HEX,       TYPE_BOOL,    1,  0, 1 },  // SETTING_DECODE_HEX
@@ -143,12 +143,13 @@ void MidimonSettings::registerListener(IListener &listener)
 	listener.m_next = NULL;
 }
 
+// Settings are stored at the end of EEPROM, with hope to minimize collisions with other sketches.
 void MidimonSettings::loadSettingsFromEEPROM()
 {
 	for (int i=0; i<SETTING_COUNT; ++i)
 	{
 		SettingValueType value;
-		EEPROM.get(i * sizeof(SettingValueType), value);
+		EEPROM.get(E2END - i * sizeof(SettingValueType), value);
 
 		if (value != 0xffff)
 		{
@@ -166,7 +167,7 @@ void MidimonSettings::saveSettingsToEEPROM()
 {
 	for (int i=0; i<SETTING_COUNT; ++i)
 	{
-		EEPROM.put(i * sizeof(SettingValueType), g_settings[i].m_value);
+		EEPROM.put(E2END - i * sizeof(SettingValueType), g_settings[i].m_value);
 	}
 }
 

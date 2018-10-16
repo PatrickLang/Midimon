@@ -10,6 +10,8 @@
 
 #include "midimon_event_display_mode.h"
 
+USBMIDI_DEFINE_PRODUCT_NAME('M', 'i', 'd', 'i', 'm', 'o', 'n');
+
 static MidimonSettings g_settings;
 
 class SettingsListener : public MidimonSettings::IListener
