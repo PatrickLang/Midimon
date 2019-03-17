@@ -17,23 +17,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef UC1701_H
-#define UC1701_H
+#ifndef SH1106_H
+#define SH1106_H
 
 #include <stdint.h>
 
-void uc1701_init(int ss, int cd, int reset);
+void sh1106_init(int ss, int cd, int reset);
 
-void uc1701_reset(); // Called by init automatically.
-void uc1701_clear();
+void sh1106_reset(); // Called by init automatically.
+void sh1106_clear();
 
-void uc1701_set_scroll(uint8_t line);
-void uc1701_add_scroll(int8_t delta);
-void uc1701_set_position(uint8_t x, uint8_t y); // Y is in count of 8 pixels. Scroll should be set before calling this function.
-void uc1701_draw_space(uint8_t n, bool inverse); // n x 8 vertical line.
-void uc1701_draw_bitmap(const void *data, uint8_t n, bool inverse); // Draw n x 8 pixels.
-void uc1701_draw_progmem_bitmap(const void *data, uint8_t n, bool inverse); // Draw n x 8 pixels from PROGMEM memory.
+void sh1106_set_scroll(uint8_t line);
+void sh1106_add_scroll(int8_t delta);
+void sh1106_set_position(uint8_t x, uint8_t y); // Y is in count of 8 pixels. Scroll should be set before calling this function.
+void sh1106_draw_space(uint8_t n, bool inverse); // n x 8 vertical line.
+void sh1106_draw_bitmap(const void *data, uint8_t n, bool inverse); // Draw n x 8 pixels.
+void sh1106_draw_progmem_bitmap(const void *data, uint8_t n, bool inverse); // Draw n x 8 pixels from PROGMEM memory.
 
-void uc1701_set_contrast(uint8_t contrast);
+void sh1106_set_contrast(uint8_t contrast);
 
-#endif // UC1701_H
+#endif // SH1106_H

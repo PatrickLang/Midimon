@@ -25,7 +25,7 @@
 #include "midimon_mode.h"
 #include "midimon_settings.h"
 
-#include "UC1701.h"
+#include "SH1106.h"
 
 #include "midimon_event_display_mode.h"
 
@@ -50,11 +50,8 @@ public:
 	{
 		switch (settingId)
 		{
-		case SETTING_LCD_BACKLIGHT:
-			m_midimon->setBacklight(value != 0);
-			break;
 		case SETTING_LCD_CONTRAST:
-			uc1701_set_contrast(value);
+			sh1106_set_contrast(value);
 			break;
 		case SETTING_MIDI_ONLY:
 			m_midimon->setInterfaceMode(value != 0 ? MODE_DIN5_ONLY : MODE_USB_INTERFACE);
@@ -94,7 +91,7 @@ IMidimonMode * Midimon::getActiveMode() const
 void Midimon::switchMode(uint8_t modeId)
 {
 	getActiveMode()->onExit();
-	uc1701_clear();
+	sh1106_clear();
 	m_renderer.resetState();
 	m_activeModeId = modeId;
 	getActiveMode()->onEnter(this);
@@ -115,8 +112,6 @@ void Midimon::begin()
 
 	input_init();
 
-	pinMode(LCD_BACKLIGHT, OUTPUT);
-
 	g_settings.begin();
 
 	MidimonSettings::registerListener(getSettingsListener());
@@ -126,11 +121,6 @@ void Midimon::begin()
 	}
 
 	getActiveMode()->onEnter(this);
-}
-
-void Midimon::setBacklight(bool on)
-{
-	digitalWrite(LCD_BACKLIGHT, on ? HIGH : LOW);
 }
 
 void Midimon::setInterfaceMode(MidimonInterfaceMode mode)
@@ -150,7 +140,7 @@ void Midimon::runModalMode(IMidimonModalMode &mode)
 	IMidimonModalMode *previousModalMode = m_modalMode;
 	getActiveMode()->onExit();
 	m_modalMode = &mode;
-	uc1701_clear();
+	sh1106_clear();
 	m_renderer.resetState();
 	m_modalMode->onEnter(this);
 	while (m_modalMode != NULL)
@@ -159,7 +149,7 @@ void Midimon::runModalMode(IMidimonModalMode &mode)
 		loop();
 	}
 	m_modalMode = previousModalMode;
-	uc1701_clear();
+	sh1106_clear();
 	m_renderer.resetState();
 	getActiveMode()->onEnter(this);
 }
@@ -247,7 +237,7 @@ void Midimon::poll()
 
 			switch (e.m_button)
 			{
-			case BUTTON_ENTER:
+			case BUTTON_A:
 				runModalMode(g_settings);
 				continue;
 			case BUTTON_UP:
@@ -256,7 +246,7 @@ void Midimon::poll()
 			case BUTTON_DOWN:
 				switchMode((m_activeModeId + m_modeCount - 1) % m_modeCount);
 				break;
-			case BUTTON_BACK:
+			case BUTTON_B:
 				getActiveMode()->onBackPressed();
 				break;
 			}
@@ -264,7 +254,7 @@ void Midimon::poll()
 		else
 		{
 			m_modalMode->onButtonEvent(e.m_button, e.m_event == EVENT_DOWN);
-			if (m_modalMode && e.m_button == BUTTON_BACK && e.m_event == EVENT_DOWN)
+			if (m_modalMode && e.m_button == BUTTON_B && e.m_event == EVENT_DOWN)
 				m_modalMode->onBackPressed();
 		}
 	}

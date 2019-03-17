@@ -17,12 +17,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef MIDIMON_UC1701_H
-#define MIDIMON_UC1701_H
+#ifndef MIDIMON_SH1106_H
+#define MIDIMON_SH1106_H
 
 #include "midimon_display.h"
 
-class MidimonDisplay_UC1701 : public IMidimonDisplay
+class MidimonDisplay_SH1106 : public IMidimonDisplay
 {
 public:
 	virtual void begin() override;
@@ -35,4 +35,4 @@ public:
 	virtual void clear() override;
 };
 
-#endif // MIDIMON_UC1701_H
+#endif // MIDIMON_SH1106_H

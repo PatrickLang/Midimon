@@ -19,46 +19,46 @@
 
 #include <Arduino.h>
 
-#include "midimon_uc1701.h"
+#include "midimon_sh1106.h"
 
-#include "UC1701.h"
+#include "SH1106.h"
 
-void MidimonDisplay_UC1701::begin()
+void MidimonDisplay_SH1106::begin()
 {
-	uc1701_init(SS, LCD_CD, LCD_RESET);
+	sh1106_init(SS, LCD_DC, LCD_RESET);
 }
 
-void MidimonDisplay_UC1701::setDrawPosition(uint8_t x, uint8_t y_8)
+void MidimonDisplay_SH1106::setDrawPosition(uint8_t x, uint8_t y_8)
 {
-	uc1701_set_position(x, y_8);
+	sh1106_set_position(x, y_8);
 }
 
-void MidimonDisplay_UC1701::setVerticalScroll(uint8_t line)
+void MidimonDisplay_SH1106::setVerticalScroll(uint8_t line)
 {
-	uc1701_set_scroll(line);
+	sh1106_set_scroll(line);
 }
 
-void MidimonDisplay_UC1701::addVerticalScroll(int8_t lines)
+void MidimonDisplay_SH1106::addVerticalScroll(int8_t lines)
 {
-	uc1701_add_scroll(lines);
+	sh1106_add_scroll(lines);
 }
 
-void MidimonDisplay_UC1701::drawSpace(uint8_t n, bool inverse)
+void MidimonDisplay_SH1106::drawSpace(uint8_t n, bool inverse)
 {
-	uc1701_draw_space(n, inverse);
+	sh1106_draw_space(n, inverse);
 }
 
-void MidimonDisplay_UC1701::drawBitmap(const void * data, uint8_t n, bool inverse)
+void MidimonDisplay_SH1106::drawBitmap(const void * data, uint8_t n, bool inverse)
 {
-	uc1701_draw_bitmap(data, n, inverse);
+	sh1106_draw_bitmap(data, n, inverse);
 }
 
-void MidimonDisplay_UC1701::drawBitmap_P(const void * data, uint8_t n, bool inverse)
+void MidimonDisplay_SH1106::drawBitmap_P(const void * data, uint8_t n, bool inverse)
 {
-	uc1701_draw_progmem_bitmap(data, n, inverse);
+	sh1106_draw_progmem_bitmap(data, n, inverse);
 }
 
-void MidimonDisplay_UC1701::clear()
+void MidimonDisplay_SH1106::clear()
 {
-	uc1701_clear();
+	sh1106_clear();
 }

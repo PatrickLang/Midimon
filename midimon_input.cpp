@@ -36,7 +36,7 @@ static unsigned long g_lastUpdated[BUTTON_COUNT];
 static uint8_t readRawInput()
 {
 	// Read the state of the button pins directly and map them to the order of MidimonButton enum.
-	return (PINC & 0x3C) >> 2;
+	return PINC & 0x3f;
 }
 
 static void updateState()
@@ -82,7 +82,7 @@ void input_init()
 {
 	g_state = readRawInput();
 	g_repeating = 0;
-	int pins[] = { PIN_BTN_OK, PIN_BTN_BACK, PIN_BTN_UP, PIN_BTN_DOWN };
+	const int pins[] = { PIN_BTN_A, PIN_BTN_B, PIN_BTN_UP, PIN_BTN_DOWN, PIN_BTN_LEFT, PIN_BTN_RIGHT };
 
 	for (int p : pins)
 	{

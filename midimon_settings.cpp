@@ -31,7 +31,6 @@ MidimonSettings::IListener *MidimonSettings::s_listenerListHead = NULL;
 static const char STR_ON[]               PROGMEM = "Yes";
 static const char STR_OFF[]              PROGMEM = "No";
 
-static const char STR_LCD_BACKLIGHT[]    PROGMEM = "LCD Backlight";
 static const char STR_LCD_CONTRAST[]     PROGMEM = "LCD Contrast";
 static const char STR_MIDI_ONLY[]        PROGMEM = "DIN-5 Thru Only";
 static const char STR_DECODE_HEX[]       PROGMEM = "Decode MIDI Data";
@@ -39,8 +38,7 @@ static const char STR_FILTER_NOISY_MSG[] PROGMEM = "Hide Noisy Messages";
 
 static Setting g_settings[SETTING_COUNT] =
 {
-	{ STR_LCD_BACKLIGHT,    TYPE_BOOL,    1,  0, 1 },  // SETTING_LCD_BACKLIGHT, Bootloader assumes backlight setting to be the very last EEPROM byte. 0x00 = off, anything else = on.
-	{ STR_LCD_CONTRAST,     TYPE_INTEGER, 40, 0, 63 }, // SETTING_LCD_CONTRAST
+	{ STR_LCD_CONTRAST,     TYPE_INTEGER, 255, 0, 255 }, // SETTING_LCD_CONTRAST
 	{ STR_MIDI_ONLY,        TYPE_BOOL,    0,  0, 1 },  // SETTING_MIDI_ONLY
 	{ STR_DECODE_HEX,       TYPE_BOOL,    1,  0, 1 },  // SETTING_DECODE_HEX
 	{ STR_FILTER_NOISY_MSG, TYPE_BOOL,    1,  0, 1 },  // SETTING_FILTER_NOISY_MSG
@@ -254,7 +252,7 @@ void MidimonSettings::onButtonEvent(MidimonButton btn, bool isDown)
 	{
 		switch (btn)
 		{
-		case BUTTON_ENTER:
+		case BUTTON_A:
 			{
 				Setting &s = g_settings[m_currentIndex];
 				if (s.m_type == TYPE_BOOL)
@@ -270,7 +268,7 @@ void MidimonSettings::onButtonEvent(MidimonButton btn, bool isDown)
 				renderSetting(getMidimon()->getRenderer(), getRenderState(m_editing, m_currentIndex, m_currentIndex), g_settings[m_currentIndex]);
 			}
 			return;
-		case BUTTON_BACK:
+		case BUTTON_B:
 			if (m_editing)
 			{
 				m_editing = false;

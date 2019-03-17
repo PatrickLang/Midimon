@@ -22,13 +22,14 @@
 
 enum MidimonButton
 {
-	BUTTON_ENTER = 0,
-	BUTTON_BACK,
-	BUTTON_UP,
-	BUTTON_DOWN,
+	BUTTON_A     = 1,
+	BUTTON_B     = 0,
+	BUTTON_UP    = 5,
+	BUTTON_DOWN  = 3,
+	BUTTON_LEFT  = 4,
+	BUTTON_RIGHT = 2,
 
-	// Must be the last one!
-	BUTTON_COUNT
+	BUTTON_COUNT = 6
 };
 
 enum EventType

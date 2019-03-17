@@ -28,11 +28,10 @@ typedef int16_t SettingValueType;
 
 enum SettingId
 {
-	SETTING_LCD_BACKLIGHT    = 0, // Must be the first one, shared with bootloader!
-	SETTING_LCD_CONTRAST     = 1,
-	SETTING_MIDI_ONLY        = 2,
-	SETTING_DECODE_HEX       = 3,
-	SETTING_FILTER_NOISY_MSG = 4,
+	SETTING_LCD_CONTRAST     = 0,
+	SETTING_MIDI_ONLY        = 1,
+	SETTING_DECODE_HEX       = 2,
+	SETTING_FILTER_NOISY_MSG = 3,
 
 	// Must be the last one!
 	SETTING_COUNT
