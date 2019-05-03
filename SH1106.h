@@ -1,6 +1,6 @@
 /*
  * Midimon.
- * Copyright (C) 2018  Vilniaus Blokas UAB, https://blokas.io/midimon
+ * Copyright (C) 2018-2019  Vilniaus Blokas UAB, https://blokas.io/midiboy
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
