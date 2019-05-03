@@ -50,8 +50,8 @@ public:
 	{
 		switch (settingId)
 		{
-		case SETTING_LCD_CONTRAST:
-			sh1106_set_contrast(value);
+		case SETTING_OLED_BRIGHTNESS:
+			sh1106_set_contrast((value << 2) + 3);
 			break;
 		case SETTING_MIDI_ONLY:
 			m_midimon->setInterfaceMode(value != 0 ? MODE_DIN5_ONLY : MODE_USB_INTERFACE);

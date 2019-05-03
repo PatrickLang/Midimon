@@ -31,17 +31,17 @@ MidimonSettings::IListener *MidimonSettings::s_listenerListHead = NULL;
 static const char STR_ON[]               PROGMEM = "Yes";
 static const char STR_OFF[]              PROGMEM = "No";
 
-static const char STR_LCD_CONTRAST[]     PROGMEM = "LCD Contrast";
+static const char STR_OLED_BRIGHTNESS[]  PROGMEM = "OLED Brightness";
 static const char STR_MIDI_ONLY[]        PROGMEM = "DIN-5 Thru Only";
 static const char STR_DECODE_HEX[]       PROGMEM = "Decode MIDI Data";
 static const char STR_FILTER_NOISY_MSG[] PROGMEM = "Hide Noisy Messages";
 
 static Setting g_settings[SETTING_COUNT] =
 {
-	{ STR_LCD_CONTRAST,     TYPE_INTEGER, 255, 0, 255 }, // SETTING_LCD_CONTRAST
-	{ STR_MIDI_ONLY,        TYPE_BOOL,    0,  0, 1 },  // SETTING_MIDI_ONLY
-	{ STR_DECODE_HEX,       TYPE_BOOL,    1,  0, 1 },  // SETTING_DECODE_HEX
-	{ STR_FILTER_NOISY_MSG, TYPE_BOOL,    1,  0, 1 },  // SETTING_FILTER_NOISY_MSG
+	{ STR_OLED_BRIGHTNESS,  TYPE_INTEGER, 63, 0, 63 },   // SETTING_OLED_BRIGHTNESS
+	{ STR_MIDI_ONLY,        TYPE_BOOL,    0,  0, 1 },    // SETTING_MIDI_ONLY
+	{ STR_DECODE_HEX,       TYPE_BOOL,    1,  0, 1 },    // SETTING_DECODE_HEX
+	{ STR_FILTER_NOISY_MSG, TYPE_BOOL,    1,  0, 1 },    // SETTING_FILTER_NOISY_MSG
 };
 
 enum RenderState

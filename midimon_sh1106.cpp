@@ -25,7 +25,7 @@
 
 void MidimonDisplay_SH1106::begin()
 {
-	sh1106_init(SS, LCD_DC, LCD_RESET);
+	sh1106_init(SS, PIN_LCD_DC, PIN_LCD_RESET);
 }
 
 void MidimonDisplay_SH1106::setDrawPosition(uint8_t x, uint8_t y_8)

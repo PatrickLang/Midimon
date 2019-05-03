@@ -28,7 +28,7 @@ typedef int16_t SettingValueType;
 
 enum SettingId
 {
-	SETTING_LCD_CONTRAST     = 0,
+	SETTING_OLED_BRIGHTNESS  = 0,
 	SETTING_MIDI_ONLY        = 1,
 	SETTING_DECODE_HEX       = 2,
 	SETTING_FILTER_NOISY_MSG = 3,
