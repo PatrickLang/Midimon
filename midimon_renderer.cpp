@@ -45,9 +45,13 @@ uint8_t MidimonRenderer::printChar(char c)
 {
 	const uint8_t *p = &MICRO_FONT[(c - ' ') * FONT_WIDTH];
 	m_display->drawBitmap_P(p, FONT_WIDTH, m_inverse);
-	uint8_t empty = 0;
-	m_display->drawBitmap(&empty, sizeof(empty), m_inverse);
-	return FONT_WIDTH + 1;
+	if (c != '.')
+	{
+		uint8_t empty = 0;
+		m_display->drawBitmap(&empty, sizeof(empty), m_inverse);
+		return FONT_WIDTH + 1;
+	}
+	return FONT_WIDTH;
 }
 
 uint8_t MidimonRenderer::printString(const char *str)

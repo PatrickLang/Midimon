@@ -398,6 +398,8 @@ void EventDisplayMode::onIncomingMidiEvent(MidimonPort src, const midi_event_t &
 	m_x = 0;
 	renderer.setDrawPosition(m_x, 0);
 	printEvent(renderer, event);
+	renderer.setDrawPosition(59, 0);
+	renderer.printChar(src == PORT_DIN5 ? 'D' : 'U');
 }
 
 void EventDisplayMode::onOutgoingMidiEvent(MidimonPort dst, const midi_event_t &event)
@@ -410,6 +412,8 @@ void EventDisplayMode::onOutgoingMidiEvent(MidimonPort dst, const midi_event_t &
 	m_x = 65;
 	renderer.setDrawPosition(m_x, 0);
 	printEvent(renderer, event);
+	renderer.setDrawPosition(124, 0);
+	renderer.printChar(dst == PORT_DIN5 ? 'D' : 'U');
 }
 
 void EventDisplayMode::newLine()
