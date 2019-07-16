@@ -19,7 +19,6 @@
 
 #include "midimon_event_display_mode.h"
 
-#include "midimon_display.h"
 #include "midimon_renderer.h"
 
 #include <midi_serialization.h>

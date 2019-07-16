@@ -18,15 +18,18 @@
  */
 
 #include "midimon_renderer.h"
-#include "midimon_font.h"
-#include "midimon_display.h"
+#include <MidiboyFonts.h>
+#include <MidiboyDisplay.h>
 #include <midi_serialization.h>
 
 #include <avr/pgmspace.h>
 
+#define FONT MIDIBOY_FONT_MICRO::DATA_P
+#define FONT_WIDTH MIDIBOY_FONT_MICRO::WIDTH
+
 void MidimonRenderer::clear()
 {
-	m_display->clear();
+	m_display->clearScreen();
 }
 
 void MidimonRenderer::resetState()
@@ -43,7 +46,7 @@ uint8_t MidimonRenderer::printSymbol(Symbol sym)
 
 uint8_t MidimonRenderer::printChar(char c)
 {
-	const uint8_t *p = &MICRO_FONT[(c - ' ') * FONT_WIDTH];
+	const uint8_t *p = &FONT[(c - ' ') * FONT_WIDTH];
 	m_display->drawBitmap_P(p, FONT_WIDTH, m_inverse);
 	if (c != '.')
 	{
@@ -259,39 +262,4 @@ uint8_t MidimonRenderer::printNote(uint8_t note)
 		x += printDec(octave, 2);
 	}
 	return x;
-}
-
-void MidimonRenderer::begin()
-{
-	m_display->begin();
-}
-
-void MidimonRenderer::setDrawPosition(uint8_t x, uint8_t y_8)
-{
-	m_display->setDrawPosition(x, y_8);
-}
-
-void MidimonRenderer::setVerticalScroll(uint8_t line)
-{
-	m_display->setVerticalScroll(line);
-}
-
-void MidimonRenderer::addVerticalScroll(int8_t lines)
-{
-	m_display->addVerticalScroll(lines);
-}
-
-void MidimonRenderer::drawSpace(uint8_t n, bool inverse)
-{
-	m_display->drawSpace(n, inverse);
-}
-
-void MidimonRenderer::drawBitmap(const void * data, uint8_t n, bool inverse)
-{
-	m_display->drawBitmap(data, n, inverse);
-}
-
-void MidimonRenderer::drawBitmap_P(const void * data, uint8_t n, bool inverse)
-{
-	m_display->drawBitmap_P(data, n, inverse);
 }

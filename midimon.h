@@ -25,7 +25,6 @@
 
 #include <stdint.h>
 
-#include "midimon_input.h"
 #include "midimon_renderer.h"
 #include "midimon_utils.h"
 
@@ -38,7 +37,7 @@
 #define MODES_END() \
 	};
 
-class IMidimonDisplay;
+class MidiboyDisplay;
 class IMidimonMode;
 class IMidimonModalMode;
 struct midi_event_t;
@@ -63,7 +62,7 @@ class Midimon
 {
 public:
 	template <const uint8_t count>
-	Midimon(IMidimonDisplay &display, IMidimonMode *(&modes)[count])
+	Midimon(MidiboyDisplay &display, IMidimonMode *(&modes)[count])
 		:m_display(display)
 		,m_serializerDIN5(0)
 		,m_serializerUSB(0)
@@ -71,7 +70,7 @@ public:
 		init(modes, count);
 	}
 
-	Midimon(IMidimonDisplay &display, IMidimonMode **modes, uint8_t count)
+	Midimon(MidiboyDisplay &display, IMidimonMode **modes, uint8_t count)
 		:m_display(display)
 		,m_serializerDIN5(0)
 		,m_serializerUSB(0)
@@ -89,7 +88,7 @@ public:
 	void setInterfaceMode(MidimonInterfaceMode mode);
 	MidimonInterfaceMode getInterfaceMode() const;
 
-	inline IMidimonDisplay &getDisplay() const { return m_display; }
+	inline MidiboyDisplay &getDisplay() const { return m_display; }
 	inline MidimonRenderer &getRenderer() { return m_renderer; }
 
 	// Runs the loop with the given modal mode, can be used recursively for sub-modes.
@@ -107,7 +106,7 @@ private:
 	void handleIncoming(MidimonPort src, const midi_event_t &event);
 	void handleOutgoing(MidimonPort dst, const midi_event_t &event);
 
-	IMidimonDisplay &m_display;
+	MidiboyDisplay &m_display;
 	MidimonRenderer m_renderer;
 	midimon_process_fn m_processFn;
 

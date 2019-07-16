@@ -17,15 +17,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <Midiboy.h>
 #include <usbmidi.h>
 #include <midi_serialization.h>
 
+#include <SH1106.h> // todo: Depends on display controller directly, for setting contrast / brightness.
+
 #include "midimon.h"
-#include "midimon_display.h"
 #include "midimon_mode.h"
 #include "midimon_settings.h"
-
-#include "SH1106.h"
 
 #include "midimon_event_display_mode.h"
 
@@ -91,7 +91,7 @@ IMidimonMode * Midimon::getActiveMode() const
 void Midimon::switchMode(uint8_t modeId)
 {
 	getActiveMode()->onExit();
-	sh1106_clear();
+	m_renderer.clear();
 	m_renderer.resetState();
 	m_activeModeId = modeId;
 	getActiveMode()->onEnter(this);
@@ -104,13 +104,12 @@ void Midimon::setProcessFunction(midimon_process_fn fn)
 
 void Midimon::begin()
 {
+	Midiboy.begin();
+
 	m_modalMode = NULL;
-	m_display.begin();
+
 	m_serializerDIN5.reset();
 	m_serializerUSB.reset();
-	Serial.begin(31250);
-
-	input_init();
 
 	g_settings.begin();
 
@@ -140,7 +139,7 @@ void Midimon::runModalMode(IMidimonModalMode &mode)
 	IMidimonModalMode *previousModalMode = m_modalMode;
 	getActiveMode()->onExit();
 	m_modalMode = &mode;
-	sh1106_clear();
+	Midiboy.clearScreen();
 	m_renderer.resetState();
 	m_modalMode->onEnter(this);
 	while (m_modalMode != NULL)
@@ -149,7 +148,7 @@ void Midimon::runModalMode(IMidimonModalMode &mode)
 		loop();
 	}
 	m_modalMode = previousModalMode;
-	sh1106_clear();
+	Midiboy.clearScreen();
 	m_renderer.resetState();
 	getActiveMode()->onEnter(this);
 }
@@ -212,7 +211,7 @@ void Midimon::handleOutgoing(MidimonPort dst, const midi_event_t &event)
 
 void Midimon::poll()
 {
-	USBMIDI.poll();
+	Midiboy.think();
 	switch (m_mode)
 	{
 	case MODE_DIN5_ONLY:
@@ -226,35 +225,34 @@ void Midimon::poll()
 		process(PORT_USB, PORT_DIN5, USBMIDI, Serial, m_serializerUSB);
 		break;
 	}
-	input_update();
-	InputEvent e;
-	while (input_get_event(e))
+	MidiboyInput::Event e;
+	while (Midiboy.readInputEvent(e))
 	{
 		if (m_modalMode == NULL)
 		{
-			if (e.m_event == EVENT_UP)
+			if (e.m_type == MidiboyInput::EVENT_UP)
 				continue;
 
 			switch (e.m_button)
 			{
-			case BUTTON_A:
+			case MidiboyInput::BUTTON_A:
 				runModalMode(g_settings);
 				continue;
-			case BUTTON_UP:
+			case MidiboyInput::BUTTON_UP:
 				switchMode((m_activeModeId + 1) % m_modeCount);
 				break;
-			case BUTTON_DOWN:
+			case MidiboyInput::BUTTON_DOWN:
 				switchMode((m_activeModeId + m_modeCount - 1) % m_modeCount);
 				break;
-			case BUTTON_B:
+			case MidiboyInput::BUTTON_B:
 				getActiveMode()->onBackPressed();
 				break;
 			}
 		}
 		else
 		{
-			m_modalMode->onButtonEvent(e.m_button, e.m_event == EVENT_DOWN);
-			if (m_modalMode && e.m_button == BUTTON_B && e.m_event == EVENT_DOWN)
+			m_modalMode->onButtonEvent(e.m_button, e.m_type == MidiboyInput::EVENT_DOWN);
+			if (m_modalMode && e.m_button == MidiboyInput::BUTTON_B && e.m_type == MidiboyInput::EVENT_DOWN)
 				m_modalMode->onBackPressed();
 		}
 	}

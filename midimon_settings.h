@@ -77,7 +77,7 @@ public:
 	virtual void onEnter(Midimon *midimon) override;
 	virtual void onExit() override;
 
-	virtual void onButtonEvent(MidimonButton btn, bool isDown) override;
+	virtual void onButtonEvent(MidiboyInput::Button btn, bool isDown) override;
 
 private:
 	void scrollUp();

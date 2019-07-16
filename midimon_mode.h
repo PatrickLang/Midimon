@@ -24,6 +24,8 @@
 #include "midimon_utils.h"
 #include "midi_serialization.h"
 
+#include <MidiboyInput.h>
+
 class IMidimonMode
 {
 public:
@@ -42,7 +44,7 @@ public:
 class IMidimonModalMode : public IMidimonMode
 {
 public:
-	virtual void onButtonEvent(MidimonButton btn, bool isDown) = 0;
+	virtual void onButtonEvent(MidiboyInput::Button btn, bool isDown) = 0;
 };
 
 template <class Base>

@@ -24,7 +24,6 @@
 #include "midimon_settings.h"
 #include "midimon.h"
 #include "midimon_renderer.h"
-#include "midimon_input.h"
 
 MidimonSettings::IListener *MidimonSettings::s_listenerListHead = NULL;
 
@@ -246,13 +245,13 @@ void MidimonSettings::onExit()
 	saveSettingsToEEPROM();
 }
 
-void MidimonSettings::onButtonEvent(MidimonButton btn, bool isDown)
+void MidimonSettings::onButtonEvent(MidiboyInput::Button btn, bool isDown)
 {
 	if (isDown)
 	{
 		switch (btn)
 		{
-		case BUTTON_A:
+		case MidiboyInput::BUTTON_A:
 			{
 				Setting &s = g_settings[m_currentIndex];
 				if (s.m_type == TYPE_BOOL)
@@ -268,7 +267,7 @@ void MidimonSettings::onButtonEvent(MidimonButton btn, bool isDown)
 				renderSetting(getMidimon()->getRenderer(), getRenderState(m_editing, m_currentIndex, m_currentIndex), g_settings[m_currentIndex]);
 			}
 			return;
-		case BUTTON_B:
+		case MidiboyInput::BUTTON_B:
 			if (m_editing)
 			{
 				m_editing = false;
@@ -280,7 +279,7 @@ void MidimonSettings::onButtonEvent(MidimonButton btn, bool isDown)
 				getMidimon()->exitModalMode();
 			}
 			return;
-		case BUTTON_UP:
+		case MidiboyInput::BUTTON_UP:
 			if (!m_editing)
 			{
 				moveCursorUp();
@@ -290,7 +289,7 @@ void MidimonSettings::onButtonEvent(MidimonButton btn, bool isDown)
 				changeSetting((SettingId)m_currentIndex, +1);
 			}
 			return;
-		case BUTTON_DOWN:
+		case MidiboyInput::BUTTON_DOWN:
 			if (!m_editing)
 			{
 				moveCursorDown();
