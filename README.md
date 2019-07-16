@@ -24,6 +24,7 @@ Then restart the Arduino IDE.
 After this, 'Midimon' should appear in the Arduino IDE's Tools->Board menu.
 
 ## See Also
+* https://github.com/BlokasLabs/Midiboy - Midiboy Core library.
 * https://github.com/BlokasLabs/Blokas-Boards - The board definition repository.
 * https://github.com/BlokasLabs/Midimon-Bootloader - The bootloader.
 * https://github.com/BlokasLabs/USBMIDI - USBMIDI library.
