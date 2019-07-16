@@ -32,6 +32,11 @@ MODES_END()
 
 Midimon midimon(Midiboy, modes);
 
+void onUsbSuspended(bool suspended)
+{
+	midimon.setUsbSuspended(suspended);
+}
+
 bool midimon_process(MidimonPort src, MidimonPort dst, u8 msg[3], u8 n)
 {
 	return true;
@@ -41,6 +46,7 @@ void setup()
 {
 	midimon.setProcessFunction(&midimon_process);
 	midimon.begin();
+	USBMIDI.setSuspendResumeCallback(&onUsbSuspended);
 }
 
 void loop()

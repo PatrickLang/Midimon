@@ -97,6 +97,11 @@ void Midimon::switchMode(uint8_t modeId)
 	getActiveMode()->onEnter(this);
 }
 
+void Midimon::setUsbSuspended(bool suspended)
+{
+	m_isUsbSuspended = suspended;
+}
+
 void Midimon::setProcessFunction(midimon_process_fn fn)
 {
 	m_processFn = fn;
@@ -131,7 +136,7 @@ void Midimon::setInterfaceMode(MidimonInterfaceMode mode)
 
 MidimonInterfaceMode Midimon::getInterfaceMode() const
 {
-	return m_mode;
+	return m_isUsbSuspended ? MODE_DIN5_ONLY : m_mode;
 }
 
 void Midimon::runModalMode(IMidimonModalMode &mode)
@@ -212,7 +217,7 @@ void Midimon::handleOutgoing(MidimonPort dst, const midi_event_t &event)
 void Midimon::poll()
 {
 	Midiboy.think();
-	switch (m_mode)
+	switch (getInterfaceMode())
 	{
 	case MODE_DIN5_ONLY:
 		process(PORT_DIN5, PORT_DIN5, Serial, Serial, m_serializerDIN5);

@@ -66,6 +66,7 @@ public:
 		:m_display(display)
 		,m_serializerDIN5(0)
 		,m_serializerUSB(0)
+		,m_isUsbSuspended(false)
 	{
 		init(modes, count);
 	}
@@ -74,10 +75,12 @@ public:
 		:m_display(display)
 		,m_serializerDIN5(0)
 		,m_serializerUSB(0)
+		,m_isUsbSuspended(false)
 	{
 		init(modes, count);
 	}
 
+	void setUsbSuspended(bool suspended);
 	void setProcessFunction(midimon_process_fn fn);
 
 	void begin();
@@ -118,6 +121,8 @@ private:
 	MidimonInterfaceMode m_mode;
 	MidiToUsb m_serializerDIN5;
 	MidiToUsb m_serializerUSB;
+
+	bool m_isUsbSuspended;
 };
 
 #endif // MIDIMON_H
