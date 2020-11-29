@@ -39,6 +39,12 @@ void onUsbSuspended(bool suspended)
 
 bool midimon_process(MidimonPort src, MidimonPort dst, u8 msg[3], u8 n)
 {
+	if (n > 0) {
+		// Good summary at https://wiki.cockos.com/wiki/index.php/MIDI_Specification
+		if (msg[0] == 0xFA || msg[0] == 0xFB || msg[0] == 0xFC) {
+			return false;
+		}
+	}
 	return true;
 }
 
